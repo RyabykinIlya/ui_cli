@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block header %}
+    Список доступных серверов
+{% endblock %}
+{% block content %}
+    <div class="list-group">
+        {% for server in servers %}
+            <a href="#" class="list-group-item list-group-item-action">
+                {{ server.0 }}: <small>{{ server.1 }}</small>
+                <span class="badge {% if server.2 == 'online' %}badge-success{% else %}badge-danger{% endif %}
+                badge-pill float-right">{{ server.2 }}</span>
+            </a>
+            </div>
+        {% endfor %}
+{% endblock %}

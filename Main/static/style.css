@@ -1,0 +1,385 @@
+body {
+    padding: 0;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #4b4b4b;
+    background-color: #fff;
+}
+
+.copyright {
+    position: absolute;
+    bottom: 0em;
+    right: 1em;
+    z-index: 1030;
+    color: #aaafbb;
+}
+
+/*
+ * Sidebar
+ */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 20px 0;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    border-left: 1px solid #eee;
+    background-color: white;
+}
+
+.sidebar .nav-subitem {
+    padding-left: 20px;
+    font-size: 0.75rem;
+}
+
+.sidebar .nav-item {
+    width: 100%;
+}
+
+.justify-content-center {
+    -ms-flex-pack: left !important;
+    justify-content: left !important
+}
+
+@media only screen and (max-width: 769px) {
+    .sidebar {
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        padding: 0 0;
+        overflow-x: hidden;
+        overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+        border-bottom: 1px solid #eee;
+        background-color: white;
+    }
+
+    .sidebar .nav-item {
+        width: auto;
+    }
+
+    .justify-content-center {
+        -ms-flex-pack: center !important;
+        justify-content: center !important
+    }
+
+    .copyright {
+        display: none;
+    }
+
+    .sidebar .subcats {
+        display: none;
+    }
+}
+
+.sidebar .nav-item + .nav-item {
+    margin-left: 0;
+}
+
+.sidebar .nav-link {
+    border-radius: 0;
+}
+
+/*
+ * Dashboard
+ */
+
+/* Placeholders */
+.placeholders {
+    padding-bottom: 3rem;
+}
+
+.placeholder img {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+/*
+ * Globals
+ */
+
+@media (min-width: 48em) {
+    html {
+        font-size: 18px;
+    }
+}
+
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4,
+h5, .h5,
+h6, .h6 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    color: #333;
+}
+
+/*
+ * Override Bootstrap's default container.
+ */
+
+.container {
+    max-width: 60rem;
+}
+
+.subnav {
+    padding: 0;
+    margin: 0;
+    list-style: none
+}
+
+/* Nav links */
+.nav-link {
+    position: relative;
+    padding: 1rem;
+    font-weight: 500;
+    color: #d8dde9;
+}
+
+.nav-link.sub {
+    padding: 0.1rem;
+}
+
+#categories {
+    padding-bottom: 0;
+    text-decoration: underline;
+    color: #428bca;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    color: #428bca;
+    background-color: transparent;
+}
+
+/* Active state gets a caret at the bottom */
+.nav-link.active {
+    color: #fff;
+}
+
+/*
+ * Blog name and description
+ */
+
+.blog-header {
+    margin-bottom: 2rem;
+    border-bottom: .05rem solid #eee;
+}
+
+.blog-title {
+    margin-bottom: 0;
+    font-size: 1.7rem;
+    font-weight: normal;
+}
+
+.blog-description {
+    font-size: 1.1rem;
+    color: #999;
+}
+
+@media (min-width: 40em) {
+    .blog-title {
+        font-size: 2.5rem;
+    }
+}
+
+/*
+ * Blog posts
+ */
+.alert {
+    word-break: break-all;
+}
+
+.alert.fit {
+    width: fit-content;
+}
+
+.blog-post {
+    margin-bottom: 4rem;
+    -moz-hyphens: auto!important;       /* ЧОТ СДЕЛАТЬ С ЭТИМ */
+    -webkit-hyphens: auto!important;    /* ЧОТ СДЕЛАТЬ С ЭТИМ */
+    -ms-hyphens: auto!important;        /* ЧОТ СДЕЛАТЬ С ЭТИМ */
+
+}
+
+@media only screen and (max-width: 769px) {
+    .blog-post {
+        word-break: break-all;
+    }
+}
+
+.blog-post-title {
+    margin-bottom: .25rem;
+    font-size: 1.67rem;
+}
+
+.blog-post-meta {
+    margin-bottom: 1.25rem;
+    color: #999;
+}
+
+.bg-light {
+    background-color: #fdfeff !important
+}
+
+a.bg-light:focus,
+a.bg-light:hover {
+    background-color: #dae0e5 !important
+}
+
+select,
+input[type="text"],
+textarea {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: none repeat scroll 0 0 rgba(177, 177, 177, 0.07);
+    border-color: -moz-use-text-color #FFFFFF #FFFFFF -moz-use-text-color;
+    border-image: none;
+    border-width: 1px 1px 1px 1px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) inset;
+    color: #555555;
+    line-height: 1.4em;
+    padding: 5px 8px;
+    transition: background-color 0.2s ease 0s;
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+}
+
+select:focus,
+input[type="text"]:focus,
+textarea:focus {
+    background: none repeat scroll 0 0 #FFFFFF;
+    outline-width: 0;
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 0.12rem;
+}
+
+/*
+ * BreadCrumb
+ */
+
+.breadcrumb {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    list-style: none;
+    border-radius: .25rem
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    display: inline-block;
+    padding-right: .5rem;
+    padding-left: .5rem;
+    color: #868e96;
+    content: ">"
+}
+
+.breadcrumb-item + .breadcrumb-item:hover::before {
+    text-decoration: underline
+}
+
+.breadcrumb-item + .breadcrumb-item:hover::before {
+    text-decoration: none
+}
+
+.breadcrumb-item.active {
+    color: #868e96
+}
+
+ol {
+    display: block;
+    list-style-type: decimal;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 0px;
+}
+
+.pull-right {
+    float: right !important;
+}
+
+#as_is {
+    border-bottom: .05rem solid #eee;
+}
+
+/*
+ * Help buttons
+ */
+#help-buttons {
+    padding-bottom: 5px;
+}
+
+.post-image {
+    display: block;
+    margin: auto;
+    width: 100%;
+}
+
+.post-image.fifty {
+    width: 50%!important;
+}
+
+.post-image.thirty {
+    width: 30%!important;
+}
+
+.post-image.eighty {
+    width: 80%!important;
+}
+
+
+
+.signature {
+    color: lightgray;
+    font-size: 0.8rem;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    padding: .5rem 0;
+    margin: .125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-clip: padding-box;
+}
+
+.dropdown-menu button {
+    margin: 1.5px;
+}
+
+.shadow {
+    outline: 0;
+    -webkit-box-shadow: 0px 0px 51px -9px rgba(38,38,38,1);
+    -moz-box-shadow: 0px 0px 51px -9px rgba(38,38,38,1);
+    box-shadow: 0px 0px 51px -9px rgba(38,38,38,1);
+}
+
+.page_not_found {
+    text-align: center;
+    margin-top: 2em;
+}
