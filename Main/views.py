@@ -1,28 +1,7 @@
 from django.shortcuts import render
 
-import socket
-import paramiko
-
 from .models import Server
-
-
-def check_socket_opened(host, port):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(2)
-    result = sock.connect_ex((host, port))
-    if result == 0: return 0
-
-
-def ssh_connect(host, user, password, port):
-    if check_socket_opened(host, port) != 0: return 1
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname=host, username=user, password=password, port=port)
-    stdin, stdout, stderr = client.exec_command('ls -l')
-    data = stdout.read() + stderr.read()
-    print(data)
-    client.close()
-
+from .ssh_modules import ssh_execute_command, check_socket_openned
 
 def main_view(request):
     return render(request, 'main.html')
