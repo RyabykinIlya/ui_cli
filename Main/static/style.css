@@ -327,25 +327,6 @@ ol {
     padding-bottom: 5px;
 }
 
-.post-image {
-    display: block;
-    margin: auto;
-    width: 100%;
-}
-
-.post-image.fifty {
-    width: 50%!important;
-}
-
-.post-image.thirty {
-    width: 30%!important;
-}
-
-.post-image.eighty {
-    width: 80%!important;
-}
-
-
 
 .signature {
     color: lightgray;

@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
-from .models import Server
+from .models import Server, ServerCommand
 from .ssh_modules import ssh_execute_command, check_socket_openned
 
 
@@ -12,18 +12,24 @@ def main_view(request):
 class ServerDetail(DetailView):
     model = Server
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['commands'] = ServerCommand.objects.filter(server=self.object)
+        return context
 
-def servers_list_view(request):
-    def check_connection():
-        servers_info = []
-        for server in servers:
-            servers_info.append([server.name, server.ip_address])
+
+class ServersListView(ListView):
+    model = Server
+    paginate_by = 100
+
+    def create_object(self, context):
+        for server in context['server_list']:
             if check_socket_openned(server.ip_address, server.ssh_port) == 0:
-                servers_info[-1].append('online')
+                server.status = 'online'
             else:
-                servers_info[-1].append('offline')
-        return servers_info
+                server.status = 'offline'
 
-    servers = Server.objects.all()
-    servers_info = check_connection()
-    return render(request, 'Main/servers_list.html', context={'servers': servers_info})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        self.create_object(context)
+        return context
