@@ -14,6 +14,17 @@ class Server(models.Model):
         verbose_name = 'Сервер'
         verbose_name_plural = 'Сервера'
 
+class ServerCommand(models.Model):
+    name = models.CharField(max_length=40, verbose_name='Название команды')
+    server = models.ManyToManyField(Server)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Команда'
+        verbose_name_plural = 'Команды'
+
 class MenuItems(models.Model):
     item = models.CharField(max_length=10, null=False, verbose_name="Название страницы")
     title = models.CharField(max_length=25, null=False, verbose_name="Title ссылки")

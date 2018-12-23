@@ -16,9 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from .views import main_view, servers_list_view
+from .views import main_view, servers_list_view, ServerDetail
 
 urlpatterns = [
     path('', main_view, name = 'main'),
     path('servers/', servers_list_view, name = 'servers'),
+    path('server/<int:pk>', ServerDetail.as_view(), name = 'server-detail'),
 ]
