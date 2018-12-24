@@ -3,17 +3,25 @@
     Работа с сервером
 {% endblock %}
 {% block content %}
+    <div class="card mb-2">
+        <div class="card-header">
+            Command output:
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ command_output }}</p>
+        </div>
+    </div>
     <div class="card-group">
-    {% for command in commands %}
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">{{ command.name }}</h5>
-      <p class="card-text">{{ command.description }}</p>
+        {% for command in commands %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ command.name }}</h5>
+                    <p class="card-text">{{ command.description }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-link btn-sm">Execute</a>
+                </div>
+            </div>
+        {% endfor %}
     </div>
-    <div class="card-footer">
-        <a href="#" class="btn btn-link btn-sm">Execute</a>
-    </div>
-  </div>
-    {% endfor %}
-</div>
 {% endblock %}
