@@ -8,7 +8,7 @@
             Command output:
         </div>
         <div class="card-body">
-            <p class="card-text">{{ command_output }}</p>
+            <p class="card-text" id="ssh_output">{{ command_output }}</p>
         </div>
     </div>
     <div class="card-group">
@@ -19,9 +19,40 @@
                     <p class="card-text">{{ command.description }}</p>
                 </div>
                 <div class="card-footer">
-                    <a href="#" class="btn btn-link btn-sm">Execute</a>
+                    <button class="btn btn-link btn-sm" data-command="execute" id="{{ command.id }}">Execute</button>
                 </div>
             </div>
         {% endfor %}
     </div>
+{% endblock %}
+
+{% block additional_script %}
+    <script>
+        var serverId = {{ server_id_json }};
+        var ssh_output = document.querySelector('#ssh_output');
+
+        var commandSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/server/' + serverId + '/');
+
+        commandSocket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            var message = data['message'];
+            ssh_output.innerText += (message + '\n');
+        };
+
+        commandSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        var executionButtons = document.querySelectorAll('button[data-command]:not([value=""])');
+        for (var i = 0; i < executionButtons.length; i++) {
+            executionButtons[i].addEventListener('click', function (e) {
+                ssh_output.innerText = '';
+                commandSocket.send(JSON.stringify({
+                    'message': e.target.id
+                }));
+            }, (i));
+        };
+    </script>
 {% endblock %}

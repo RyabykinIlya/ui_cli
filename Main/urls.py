@@ -14,11 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-
 from .views import main_view, ServersListView, ServerDetail
+from .consumers import CommandsConsumer
 
 urlpatterns = [
-    path('', main_view, name = 'main'),
-    path('servers/', ServersListView.as_view(), name = 'servers'),
-    path('server/<int:pk>/', ServerDetail.as_view(), name = 'server-detail'),
+    path('', main_view, name='main'),
+    path('servers/', ServersListView.as_view(), name='servers'),
+    path('server/<int:pk>/', ServerDetail.as_view(), name='server-detail'),
+]
+
+websocket_urlpatterns = [
+    path('ws/server/<int:pk>/', CommandsConsumer),
 ]

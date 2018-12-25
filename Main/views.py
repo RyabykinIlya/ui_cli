@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import DetailView, ListView
+from django.utils.safestring import mark_safe
+
+import json
 
 from .models import Server, ServerCommand
 from .ssh_modules import ssh_execute_command, check_socket_openned
@@ -15,6 +18,7 @@ class ServerDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['commands'] = ServerCommand.objects.filter(server=self.object)
+        context['server_id_json'] = mark_safe(json.dumps(self.object.id))
         return context
 
 
