@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 import json
 
 from .models import Server, ServerCommand
-from .ssh_modules import ssh_execute_command, check_socket_openned
+from .ssh_modules import check_socket_openned
 
 
 def main_view(request):

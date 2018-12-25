@@ -2,13 +2,14 @@ import json
 
 from .models import ServerCommand, Server
 from .classes_override import WebsocketConsumerCustom
+from .ssh_modules import ssh_execute_command_for_server
 
 
 class CommandsConsumer(WebsocketConsumerCustom):
     def get_command_for_server(self, server_pk, command_pk):
         'Function for command validation, saves from executing command that does not exist for the chosen server'
 
-        server_command = ServerCommand.objects.filter(server=Server.objects.get(pk=server_pk), pk=command_pk)
+        server_command = ServerCommand.objects.get(server=Server.objects.get(pk=server_pk), pk=command_pk)
         if not server_command:
             raise KeyError('Command with pk {} does not exist for this server.'.format(command_pk))
 
@@ -22,10 +23,14 @@ class CommandsConsumer(WebsocketConsumerCustom):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        command = self.get_command_for_server(self.get_websocket_kwargs(self, 'pk'), text_data_json['message'])
+        try:
+            server_pk = self.get_websocket_kwargs(self, 'pk')
+            command_obj = self.get_command_for_server(server_pk, text_data_json['command_pk'])
+        except KeyError as e:
+            message = 'Error has occured during command execution:\n{}'.format(str(e))
 
-        message = text_data_json['message']
+        message = ssh_execute_command_for_server(server_pk, command_obj.command)
 
         self.send(text_data=json.dumps({
-            'message': message
+            'message': str(message)
         }))

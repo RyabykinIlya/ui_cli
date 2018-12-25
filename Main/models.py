@@ -22,8 +22,9 @@ class Server(models.Model):
 class ServerCommand(models.Model):
     server = models.ManyToManyField(Server, related_name='commands')
     name = models.CharField(max_length=40, verbose_name='Название команды')
+    command = models.TextField(max_length=2000, verbose_name='Команда для выполнения')
     description = models.TextField(verbose_name="Описание команды")
-    average_execution_time = models.TimeField(verbose_name="Среднее время выполнения команды")
+    average_execution_time = models.FloatField(verbose_name="Среднее время выполнения команды", default=1.0)
 
     def __str__(self):
         return str(self.name)
@@ -34,7 +35,7 @@ class ServerCommand(models.Model):
 
 
 class MenuItems(models.Model):
-    item = models.CharField(max_length=10, null=False, verbose_name="Название страницы")
+    item = models.CharField(max_length=15, null=False, verbose_name="Название страницы")
     title = models.CharField(max_length=25, null=False, verbose_name="Title ссылки")
     item_id = models.CharField(max_length=10, null=False,
                                verbose_name="Id на странице")  # по нему происходит срабатывание активации пунктов меню

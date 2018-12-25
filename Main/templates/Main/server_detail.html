@@ -3,12 +3,12 @@
     Работа с сервером
 {% endblock %}
 {% block content %}
-    <div class="card mb-2">
+    <div class="card mb-2 d-none" id="ssh-out-block">
         <div class="card-header">
             Command output:
         </div>
         <div class="card-body">
-            <p class="card-text" id="ssh_output">{{ command_output }}</p>
+            <p class="card-text" id="ssh-output">{{ command_output }}</p>
         </div>
     </div>
     <div class="card-group">
@@ -29,7 +29,7 @@
 {% block additional_script %}
     <script>
         var serverId = {{ server_id_json }};
-        var ssh_output = document.querySelector('#ssh_output');
+        var sshOutput = document.querySelector('#ssh-output');
 
         var commandSocket = new WebSocket(
             'ws://' + window.location.host +
@@ -38,7 +38,7 @@
         commandSocket.onmessage = function (e) {
             var data = JSON.parse(e.data);
             var message = data['message'];
-            ssh_output.innerText += (message + '\n');
+            sshOutput.innerText += (message + '\n');
         };
 
         commandSocket.onclose = function (e) {
@@ -48,11 +48,18 @@
         var executionButtons = document.querySelectorAll('button[data-command]:not([value=""])');
         for (var i = 0; i < executionButtons.length; i++) {
             executionButtons[i].addEventListener('click', function (e) {
-                ssh_output.innerText = '';
+                sshOutput.innerText = '';
+                /* toggle if block is hidden */
+                sshOutBlock = document.querySelector('#ssh-out-block');
+                if ($.inArray('d-none', sshOutBlock.classList) >= 0) {
+                    sshOutBlock.classList.toggle('d-none');
+                }
+                /* send command pk to server */
                 commandSocket.send(JSON.stringify({
-                    'message': e.target.id
+                    'command_pk': e.target.id
                 }));
             }, (i));
-        };
+        }
+        ;
     </script>
 {% endblock %}
