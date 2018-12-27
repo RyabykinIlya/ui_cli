@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'channels',
-    'Main',
+    'main',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,7 +54,7 @@ ROOT_URLCONF = 'ui_cli.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'Main/templates')]
+        'DIRS': [os.path.join(BASE_DIR, 'main/templates')]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -63,14 +63,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'Main.context_processors.menu',
+                'main.context_processors.menu',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'ui_cli.wsgi.application'
-ASGI_APPLICATION = 'Main.routing.application'
+ASGI_APPLICATION = 'main.routing.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -117,4 +117,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "Main/static")
+STATIC_ROOT = os.path.join(BASE_DIR, "main/static")

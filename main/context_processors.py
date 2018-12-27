@@ -5,7 +5,7 @@ def menu(request):
 
 def get_constant(expr):
     constants = {
-        'post_not_ready':'Уважаемый читатель! Статья находится в процессе написания и скоро будет закончена. Обязательно возвращайтесь!',
+        'post_not_ready':'Some text',
     }
     try:
         return  constants[expr]

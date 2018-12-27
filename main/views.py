@@ -9,7 +9,7 @@ from .ssh_modules import check_socket_openned
 
 
 def main_view(request):
-    return render(request, 'Main/main.html')
+    return render(request, 'main/main.html')
 
 
 class ServerDetail(DetailView):

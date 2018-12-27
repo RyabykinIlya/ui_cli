@@ -1,4 +1,12 @@
 from channels.generic.websocket import WebsocketConsumer
+from django.contrib import admin
+
+
+class CustomModelAdmin(admin.ModelAdmin):
+    class Media:
+        css = {
+            'all': ('admin/style.css',)
+        }
 
 
 class WebsocketConsumerCustom(WebsocketConsumer):

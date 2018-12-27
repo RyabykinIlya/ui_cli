@@ -1,4 +1,4 @@
-{% extends 'Main/base.html' %}
+{% extends 'main/base.html' %}
 {% block header %}
     Работа с сервером
 {% endblock %}
@@ -6,9 +6,12 @@
     <div class="card mb-2 d-none" id="ssh-out-block">
         <div class="card-header">
             Command output:
+            <button type="button" class="close" id="closeCommandDiv">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <div class="card-body">
-            <p class="card-text" id="ssh-output">{{ command_output }}</p>
+            <p class="card-text" id="ssh-output"><samp>{{ command_output }}</samp></p>
         </div>
     </div>
     <div class="card-group">
@@ -59,7 +62,10 @@
                     'command_pk': e.target.id
                 }));
             }, (i));
-        }
-        ;
+        };
+
+        document.querySelector('#closeCommandDiv').onclick = function () {
+            document.querySelector('#ssh-out-block').classList.toggle('d-none');
+        };
     </script>
 {% endblock %}
