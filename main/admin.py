@@ -5,6 +5,7 @@ from .classes_override import CustomModelAdmin
 
 admin.site.register(models.MenuItems)
 
+
 class ServerInline(admin.TabularInline):
     model = models.Server
     extra = 0
@@ -29,7 +30,7 @@ class ServerCommandInline(admin.TabularInline):
 @admin.register(models.Server)
 class ServerAdmin(CustomModelAdmin):
     inlines = [ServerCommandInline, ]
-    list_display = ('contour', 'name', 'ip_address', 'ssh_port')
+    list_display = ('name_ipaddress', 'contour', 'ip_address', 'ssh_port')
 
 
 @admin.register(models.ServerCommand)
@@ -48,3 +49,4 @@ class ServerCommandAdmin(CustomModelAdmin):
     filter_horizontal = ('server',)
     readonly_fields = ('average_execution_time',)
     list_display = ('name', 'description')
+    save_as = True

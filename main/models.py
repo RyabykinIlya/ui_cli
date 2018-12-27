@@ -1,7 +1,16 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
-class Contour(models.Model):
+class ModelWithUser(models.Model):
+    last_upd_by = models.ForeignKey(User, verbose_name='Кем изменено', on_delete=models.SET_NULL
+                                    , blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class Contour(ModelWithUser):
     name = models.CharField(max_length=75, verbose_name='Название контура')
     description = models.TextField(verbose_name='Описание контура', blank=True, null=True)
 
@@ -13,7 +22,7 @@ class Contour(models.Model):
         verbose_name_plural = 'Контуры'
 
 
-class Server(models.Model):
+class Server(ModelWithUser):
     name = models.CharField(max_length=30, verbose_name='Название машины')
     ip_address = models.GenericIPAddressField(verbose_name='IP адрес машины')
     ssh_port = models.IntegerField(verbose_name='SSH порт')
@@ -24,6 +33,10 @@ class Server(models.Model):
     def get_absolute_url(self):
         return '/server/%i/' % self.id
 
+    def name_ipaddress(self):
+        return '{}: {}'.format(str(self.name), str(self.ip_address))
+    name_ipaddress.short_description = 'Название машины: IP'
+
     def __str__(self):
         return '{}:{}'.format(str(self.name), str(self.ip_address))
 
@@ -32,7 +45,7 @@ class Server(models.Model):
         verbose_name_plural = 'Сервера'
 
 
-class ServerCommand(models.Model):
+class ServerCommand(ModelWithUser):
     name = models.CharField(max_length=40, verbose_name='Название команды')
     command = models.TextField(max_length=2000, verbose_name='Команда для выполнения')
     description = models.TextField(verbose_name='Описание команды', blank=True, null=True)
@@ -47,7 +60,7 @@ class ServerCommand(models.Model):
         verbose_name_plural = 'Команды'
 
 
-class MenuItems(models.Model):
+class MenuItems(ModelWithUser):
     item = models.CharField(max_length=15, null=False, verbose_name='Название страницы')
     title = models.CharField(max_length=25, null=False, verbose_name='Title ссылки')
     item_id = models.CharField(max_length=10, null=False,
@@ -63,14 +76,6 @@ class MenuItems(models.Model):
     class Meta:
         verbose_name = 'Меню'
         verbose_name_plural = 'Меню'
-
-
-from django.contrib.auth.models import User
-
-
-class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    department = models.CharField(max_length=100)
 
 
 '''
