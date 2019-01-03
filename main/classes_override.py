@@ -8,6 +8,7 @@ class CustomModelAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     readonly_fields = ('last_upd_by',)
+    save_as = True
 
     def get_list_display(self, request):
         return self.list_display + ('last_upd_by',)

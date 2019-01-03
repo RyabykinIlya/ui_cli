@@ -4,8 +4,9 @@ from django.utils.safestring import mark_safe
 
 import json
 
-from .models import Server, ServerCommand
+from .models import Server, ServerCommand, Contour
 from .ssh_modules import check_socket_openned
+from .help import get_user
 
 
 def main_view(request):
@@ -17,23 +18,32 @@ class ServerDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['commands'] = ServerCommand.objects.filter(server=self.object)
+        context['commands'] = ServerCommand.cobjects.filter(server=self.object).get_restricted(user=get_user(self))
         context['server_id_json'] = mark_safe(json.dumps(self.object.id))
         return context
 
 
 class ServersListView(ListView):
-    model = Server
     paginate_by = 100
+    template_name = 'main/server_list.html'
 
-    def create_object(self, context):
-        for server in context['server_list']:
-            if check_socket_openned(server.ip_address, server.ssh_port) == 0:
-                server.status = 'online'
-            else:
-                server.status = 'offline'
+    def check_server_status(self, context):
+        for contour in context['object_list']:
+            '''for server in contour.servers:
+                # for server in context['server_list']:
+                if check_socket_openned(server.ip_address, server.ssh_port) == 0:
+                    server.status = 'online'
+                else:
+                    server.status = 'offline'
+            '''
+
+    def get_queryset(self):
+        contour_servers = Contour.cobjects.all().get_restricted(user=get_user(self)).order_by('-order_by')
+        for contour in contour_servers:
+            contour.servers = Server.cobjects.filter(contour=contour).get_restricted(user=get_user(self))
+        return contour_servers
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self.create_object(context)
+        self.check_server_status(context)
         return context
