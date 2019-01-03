@@ -414,3 +414,10 @@ ol {
     flex: 1 1 auto;
     padding: .75rem;
 }
+
+.card-header {
+    padding: .25rem .75rem;
+    margin-bottom: 0;
+    background-color: rgba(53, 238, 19, 0.28);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}

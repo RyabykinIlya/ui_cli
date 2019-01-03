@@ -25,8 +25,8 @@ class WebsocketConsumerCustom(WebsocketConsumer):
     def get_websocket_kwargs(self, socket, key):
         'Custom method for getting kwargs key using one function.'
 
-        value = socket.scope['url_route']['kwargs'].get(key, 0)
-        if value == 0:
+        value = socket.scope['url_route']['kwargs'].get(key, -1)
+        if value == -1:
             raise KeyError('Key {} does not exist in '
                            'socket->scope(dict)->url_route(dict)->kwargs(dict) you passed.'.format(key))
         else:

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.query_utils import Q
 
 
 class ModelWithUser(models.Model):
@@ -79,7 +80,9 @@ class Server(ModelWithUser, RestrictedModel, models.Model):
 
 class ServerCommand(ModelWithUser, RestrictedModel, models.Model):
     name = models.CharField(max_length=40, verbose_name='Название команды')
-    command = models.TextField(max_length=2000, verbose_name='Команда для выполнения')
+    command = models.TextField(max_length=2000, verbose_name='Команда для выполнения', help_text='''
+    Введите команду для выполнения на сервере<br>
+    Вы можете ввести custom_command для того, чтобы пользователь сам ввёл команду''')
     description = models.TextField(verbose_name='Описание команды', blank=True, null=True)
     average_execution_time = models.FloatField(verbose_name='Среднее время выполнения команды', default=1.0)
     server = models.ManyToManyField(Server, related_name='commands', verbose_name='Сервер')

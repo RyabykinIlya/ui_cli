@@ -9,5 +9,8 @@ def get_user(object):
         return get_from_request(object)
     elif 'view' in dir(object):
         return get_from_request(getattr(object['view']))
+    elif hasattr(object,'scope'):
+        if 'user' in getattr(object, 'scope'):
+            return getattr(object, 'scope').get('user')
     else:
         raise TypeError('Can not return user from object {}'.format(type(object)))
