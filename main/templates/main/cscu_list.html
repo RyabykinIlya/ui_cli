@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+{% block title %}
+    <title>Список комманд</title>
+{% endblock %}
+{% block header %}
+    Список комманд
+{% endblock %}
+{% block content %}
+    {% load verbose_names %}
+    <div class="row">
+            <div class="col col-sm-1">{% get_verbose_field_name object_list.0.contour "name" %}</div>
+            <div class="col col-sm-3">{% get_verbose_field_name object_list.0.server "name" %}</div>
+            <div class="col col-sm-2">{% get_verbose_field_name object_list.0.servercommand "name" %}</div>
+            <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "user" %}</div>
+            <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "start_time" %}</div>
+            <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "end_time" %}</div>
+    </div>
+    <div class="row">
+        {% for cscu in object_list %}
+            <div class="col col-sm-1">{{ cscu.contour }}</div>
+            <div class="col col-sm-3">{{ cscu.server }}</div>
+            <div class="col col-sm-2">{{ cscu.servercommand }}</div>
+            <div class="col col-sm-2">{{ cscu.user }} </div>
+            <div class="col col-sm-2">{{ cscu.start_time|date:'d.m.Y H:i:s' }}</div>
+            <div class="col col-sm-2">{{ cscu.end_time|date:'d.m.Y H:i:s' }}</div>
+        {% endfor %}
+    </div>
+{% endblock %}

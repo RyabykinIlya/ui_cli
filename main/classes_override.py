@@ -1,4 +1,4 @@
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 from django.contrib import admin
 
 
@@ -28,6 +28,21 @@ class WebsocketConsumerCustom(WebsocketConsumer):
         value = socket.scope['url_route']['kwargs'].get(key, -1)
         if value == -1:
             raise KeyError('Key {} does not exist in '
-                           'socket->scope(dict)->url_route(dict)->kwargs(dict) you passed.'.format(key))
+                           'socket->scope(dict)->url_route(dict)->kwargs(dict) you passed from JS '
+                           'web-socket initialization'.format(key))
+        else:
+            return value
+
+class AsyncWebsocketConsumerCustom(AsyncWebsocketConsumer):
+    'Overriding WebsocketConsumer class for better functionality.'
+
+    def get_websocket_kwargs(self, socket, key):
+        'Custom method for getting kwargs key using one function.'
+
+        value = socket.scope['url_route']['kwargs'].get(key, -1)
+        if value == -1:
+            raise KeyError('Key {} does not exist in '
+                           'socket->scope(dict)->url_route(dict)->kwargs(dict) you passed from JS '
+                           'web-socket initialization'.format(key))
         else:
             return value

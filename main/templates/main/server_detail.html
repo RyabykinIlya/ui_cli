@@ -10,9 +10,12 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div class="card-body">
+        <div class="card-body" id="ssh-out-scrollblock">
             <p class="card-text" id="ssh-output"><samp>{{ command_output }}</samp></p>
         </div>
+    </div>
+    <div class="input-group mb-3 d-none" id="manual-input-block">
+        <input type="text" class="form-control" placeholder="Введите команду здесь" id="manual-command">
     </div>
     <div class="card-group">
         {% for command in commands %}
@@ -23,9 +26,7 @@
                 </div>
                 <div class="card-footer">
                     {% if command.command == "custom_command" %}
-                        <button type="button" class="btn btn-link btn-sm" data-toggle="modal"
-                                data-target="#modal{{ command.id }}"
-                                data-whatever="@mdo">Execute
+                        <button type="button" class="btn btn-link btn-sm" id="show-manual-input">Execute
                         </button>
                     {% else %}
                         <button class="btn btn-link btn-sm" data-command="execute" id="{{ command.id }}">Execute
@@ -35,83 +36,61 @@
             </div>
         {% endfor %}
     </div>
-    {% for command in commands %}
-        {% if command.command == "custom_command" %}
-            <div class="modal fade" id="modal{{ command.id }}" tabindex="-1" role="dialog"
-                 aria-labelledby="modal{{ command.id }}Label"
-                 aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modal{{ command.id }}Label">Execute command</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                <!-- <div class="form-group">
-                                    <label for="recipient-name" class="col-form-label">Command:</label>
-                                    <input type="text" class="form-control" id="command">
-                                </div> -->
-                                <div class="form-group">
-                                    <label for="command{{ command.id }}" class="col-form-label">Command:</label>
-                                    <textarea class="form-control" id="command{{ command.id }}"></textarea>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" data-command="execute_custom"
-                                    id="{{ command.id }}">
-                                Execute
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-    {% endfor %}
 {% endblock %}
 
 {% block additional_script %}
     <script>
         var serverId = {{ server_id_json }};
         var sshOutput = document.querySelector('#ssh-output');
+        var sshOutputBlock = document.querySelector('#ssh-out-scrollblock');
 
         var commandSocket = new WebSocket(
             'ws://' + window.location.host +
             '/ws/server/' + serverId + '/');
+        /*var commandDiscSocket = commandSocket;
+         document.querySelector('#closeconn').onclick = function () {
+         commandDiscSocket.send(JSON.stringify({
+         'disconnect': 'Y'
+         }));
+         console.log('closed')
+         };*/
 
         commandSocket.onmessage = function (e) {
             var data = JSON.parse(e.data);
             var message = data['message'];
             sshOutput.innerText += (message + '\n');
+            // keep eyes on buttom of scrolled block
+            sshOutputBlock.scrollTop = sshOutputBlock.scrollHeight - sshOutputBlock.clientHeight;
         };
 
         commandSocket.onclose = function (e) {
             console.error('Chat socket closed unexpectedly');
         };
 
+        function execute_command(e) {
+            sshOutput.innerText = '';
+            // toggle if block is hidden
+            sshOutBlock = document.querySelector('#ssh-out-block');
+            if ($.inArray('d-none', sshOutBlock.classList) >= 0) {
+                sshOutBlock.classList.toggle('d-none');
+            }
+            // send command pk to server
+            if (e == 'custom_command') {
+                // if invoked custom command execution
+                commandSocket.send(JSON.stringify({
+                    'command': document.querySelector('#manual-command').value
+                    //,'disconnect': 'Y'
+                }));
+            } else
+                commandSocket.send(JSON.stringify({
+                    'command_pk': e.target.id
+                    //,'disconnect': 'Y'
+                }));
+        }
         var executionButtons = document.querySelectorAll('button[data-command]:not([value=""])');
         for (var i = 0; i < executionButtons.length; i++) {
             executionButtons[i].addEventListener('click', function (e) {
-                sshOutput.innerText = '';
-                /* toggle if block is hidden */
-                sshOutBlock = document.querySelector('#ssh-out-block');
-                if ($.inArray('d-none', sshOutBlock.classList) >= 0) {
-                    sshOutBlock.classList.toggle('d-none');
-                }
-                /* send command pk to server */
-                if ($('#' + e.target.id).attr('data-command') == 'execute_custom') {
-                    // if invoked custom command execution
-                    commandSocket.send(JSON.stringify({
-                        'command': $('#command' + e.target.id)[0].value
-                    }));
-                } else
-                    commandSocket.send(JSON.stringify({
-                        'command_pk': e.target.id
-                    }));
+                execute_command(e)
             }, (i));
         }
         ;
@@ -119,5 +98,15 @@
         document.querySelector('#closeCommandDiv').onclick = function () {
             document.querySelector('#ssh-out-block').classList.toggle('d-none');
         };
+        document.querySelector('#show-manual-input').onclick = function () {
+            document.querySelector('#manual-input-block').classList.toggle('d-none');
+        };
+
+        $('input[type=text]').on('keydown', function (e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                execute_command('custom_command')
+            }
+        });
     </script>
 {% endblock %}

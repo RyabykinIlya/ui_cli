@@ -1,5 +1,6 @@
 import socket
 import paramiko
+import asyncio
 
 from .models import Server
 
@@ -10,7 +11,7 @@ def check_socket_openned(host, port, timeout=0.5):
     result = sock.connect_ex((host, port))
     if result == 0: return 0
 
-
+'''
 class SshCommandExecuter():
     def __init__(self, host, user, password, port, command):
         self.client = paramiko.SSHClient()
@@ -33,7 +34,34 @@ class SshCommandExecuter():
 
     def disconnect(self):
         self.client.close()
+'''
+'''
+client2 = paramiko.Transport(('127.0.0.1',50022)) \
+    asgdf
+    asdgf
+'''
+class SshCommandExecuter():
+    def __init__(self, host, user, password, port):
+        # creates connection to server once
+        self.client = paramiko.Transport((host, port))
+        self.client.connect(username=user, password=password)
 
+    def execute(self, command):
+        # creates channel every time for command execution
+        #async def gen(self):
+        async def gen(self):
+            # used for stoping generator outside?
+            while not self.session.exit_status_ready():
+                yield self.session.recv(self.RECV_BYTES).decode("utf-8") \
+                      or self.session.recv_stderr(self.RECV_BYTES).decode("utf-8")
+        self.session = self.client.open_channel(kind='session')
+        self.RECV_BYTES = 1024
+        self.session.exec_command(command)
+        self.gen = gen(self)
+
+    def disconnect(self):
+        # self.session.close()
+        self.client.close()
 
 def ssh_execute_command(host, user, password, port, command):
     if check_socket_openned(host, port) != 0:

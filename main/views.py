@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 import json
 
-from .models import Server, ServerCommand, Contour
+from .models import Server, ServerCommand, Contour, CSCU
 from .ssh_modules import check_socket_openned
 from .help import get_user
 
@@ -46,4 +46,17 @@ class ServersListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         self.check_server_status(context)
+        return context
+
+
+class CSCUListView(ListView):
+    model = CSCU
+    template_name = 'main/cscu_list.html'
+    paginate_by = 100
+
+    def get_queryset(self):
+        return super().get_queryset().order_by('-end_time', '-start_time')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context

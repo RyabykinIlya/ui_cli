@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.query_utils import Q
-
+from datetime import datetime
 
 class ModelWithUser(models.Model):
     last_upd_by = models.ForeignKey(User, verbose_name='Кем изменено', on_delete=models.SET_NULL,
@@ -24,6 +24,12 @@ class RestrictedQuerySet(models.query.QuerySet):
 
 class RestrictedManager(models.Manager):
     ' custom manager to override QuerySet '
+    def get(self, *args, **kwargs):
+        # do not restrict for superuser
+        if 'permission__user' in kwargs:
+            if getattr(kwargs['permission__user'], 'is_superuser'):
+                kwargs.pop('permission__user')
+        return super().get(*args, **kwargs)
 
     def get_queryset(self):
         return RestrictedQuerySet(self.model, using=self._db)
@@ -86,6 +92,7 @@ class ServerCommand(ModelWithUser, RestrictedModel, models.Model):
     description = models.TextField(verbose_name='Описание команды', blank=True, null=True)
     average_execution_time = models.FloatField(verbose_name='Среднее время выполнения команды', default=1.0)
     server = models.ManyToManyField(Server, related_name='commands', verbose_name='Сервер')
+    lock_enable = models.BooleanField(verbose_name='Запретить выполнять параллельно', default=False)
 
     def __str__(self):
         return str(self.name)
@@ -96,8 +103,8 @@ class ServerCommand(ModelWithUser, RestrictedModel, models.Model):
 
 
 class MenuItems(ModelWithUser, models.Model):
-    item = models.CharField(max_length=15, null=False, verbose_name='Название страницы')
-    title = models.CharField(max_length=25, null=False, verbose_name='Title ссылки')
+    item = models.CharField(max_length=20, null=False, verbose_name='Название страницы')
+    title = models.CharField(max_length=40, null=False, verbose_name='Title ссылки')
     item_id = models.CharField(max_length=10, null=False,
                                verbose_name='Id на странице')  # по нему происходит срабатывание активации пунктов меню
     order_number = models.IntegerField(verbose_name='Порядок', null=False)
@@ -126,3 +133,18 @@ class Permission(ModelWithUser, models.Model):
     class Meta:
         verbose_name = 'Полномочие'
         verbose_name_plural = 'Полномочия'
+
+class CSCU(models.Model):
+    """
+    Contour-Server-Command-User
+    Model for В которой хранятся локи на команды,
+    смотреть по статусу выполнения(inprogress, done),
+    store history of executed command by users
+    """
+    contour = models.ForeignKey(Contour, verbose_name='Контур', on_delete=models.SET_NULL, null=True)
+    server = models.ForeignKey(Server, verbose_name='Сервер', on_delete=models.SET_NULL, null=True)
+    servercommand = models.ForeignKey(ServerCommand, verbose_name='Команда', on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.SET_NULL, null=True)
+    locked_status = models.BooleanField(verbose_name='Выполняется другим пользователем', default=False)
+    start_time = models.DateTimeField(verbose_name='Время начала выполнения', default=datetime.now())
+    end_time = models.DateTimeField(verbose_name='Время завершения выполнения', null=True)

@@ -20,10 +20,12 @@ from .consumers import CommandsConsumer
 
 urlpatterns = [
     path('', views.main_view, name='main'),
-    path('servers/', views.ServersListView.as_view(), name='servers'),
+    path('servers/', views.ServersListView.as_view(), name='servers-list'),
     path('server/<int:pk>/', views.ServerDetail.as_view(), name='server-detail'),
+    path('commands/history/', views.CSCUListView.as_view(), name='cscu-list'),
 ]
 
 websocket_urlpatterns = [
     path('ws/server/<int:pk>/', CommandsConsumer),
+    path('ws/server/disconnect/<int:pk>/', CommandsConsumer),
 ]
