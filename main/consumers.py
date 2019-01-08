@@ -61,15 +61,12 @@ class SyncCommandsConsumer(WebsocketConsumerCustom):
             self.executer.execute(command_obj.command)
         self.cscu_hist = HistoryLogger(self.server, command_obj, get_user(self), datetime.now())
         django_rq.enqueue(self.cscu_hist.save)
-        # django_rq.enqueue(create, self.server, command_obj, get_user(self))
-        # django_rq.
         for message in self.executer.gen:
             self.send(text_data=json.dumps({
                 # 'std': self.executer.std,
                 'message': str(message)
             }))
         else:
-            # pass
             django_rq.enqueue(self.cscu_hist.unlock_command, datetime.now())
 
 
@@ -93,8 +90,12 @@ class AsyncCommandsConsumer(AsyncWebsocketConsumerCustom):
         else:
             command_obj = get_command_for_server(self, self.server_pk, text_data_json['command_pk'])
             self.executer.func.execute(command_obj.command)
+        self.cscu_hist = HistoryLogger(self.server, command_obj, get_user(self), datetime.now())
+        django_rq.enqueue(self.cscu_hist.save)
         async for message in self.executer.func.gen:
             await self.send(text_data=json.dumps({
                 # 'std': self.executer.func.std,
                 'message': str(message)
             }))
+        else:
+            django_rq.enqueue(self.cscu_hist.unlock_command, datetime.now())
