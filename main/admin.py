@@ -3,6 +3,8 @@ from django.contrib import admin
 from . import models
 from .classes_override import CustomModelAdmin
 
+admin.site.register(models.CSCU)
+
 ################################## inlines ##################################
 class ServerInline(admin.TabularInline):
     model = models.Server

@@ -15,21 +15,23 @@
         </div>
     </div>
     <div class="input-group mb-3 d-none" id="manual-input-block">
-        <input type="text" class="form-control" placeholder="Введите команду здесь" id="manual-command">
+        <input type="text" class="form-control" placeholder="Введите команду здесь и нажмите Enter" id="manual-command">
     </div>
-    <div class="card-group">
+    <div class="card-group" id="command-group">
         {% for command in commands %}
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">{{ command.name }}</h5>
                     <p class="card-text">{{ command.description }}</p>
                 </div>
-                <div class="card-footer">
+                <div class="card-execute">
                     {% if command.command == "custom_command" %}
-                        <button type="button" class="btn btn-link btn-sm" id="show-manual-input">Execute
+                        <button type="button" class="btn btn-success btn-md btn-block disabled"
+                                id="show-manual-input">Выполнить
                         </button>
                     {% else %}
-                        <button class="btn btn-link btn-sm" data-command="execute" id="{{ command.id }}">Execute
+                        <button class="btn btn-primary btn-md btn-block disabled" data-command="execute"
+                                id="{{ command.id }}">Выполнить
                         </button>
                     {% endif %}
                 </div>
@@ -47,34 +49,33 @@
         var commandSocket = new WebSocket(
             'ws://' + window.location.host +
             '/ws/server/' + serverId + '/');
-        /*var commandDiscSocket = commandSocket;
-         document.querySelector('#closeconn').onclick = function () {
-         commandDiscSocket.send(JSON.stringify({
-         'disconnect': 'Y'
-         }));
-         console.log('closed')
-         };*/
 
-        commandSocket.onmessage = function (e) {
-            var data = JSON.parse(e.data);
-            var message = data['message'];
-            sshOutput.innerText += (message + '\n');
-            // keep eyes on buttom of scrolled block
-            sshOutputBlock.scrollTop = sshOutputBlock.scrollHeight - sshOutputBlock.clientHeight;
-        };
-
-        commandSocket.onclose = function (e) {
-            console.error('Chat socket closed unexpectedly');
-        };
-
-        function execute_command(e) {
-            sshOutput.innerText = '';
+        function toggle_block() {
             // toggle if block is hidden
             sshOutBlock = document.querySelector('#ssh-out-block');
             if ($.inArray('d-none', sshOutBlock.classList) >= 0) {
                 sshOutBlock.classList.toggle('d-none');
             }
-            // send command pk to server
+        }
+        commandSocket.onopen = function () {
+            $('div#command-group button').removeClass('disabled');
+            console.log("Connection successful.");
+        };
+        commandSocket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            var message = data['message'];
+            sshOutput.innerText += (message.trim() + '\n');
+            toggle_block();
+            // keep eyes on buttom of scrolled block
+            sshOutputBlock.scrollTop = sshOutputBlock.scrollHeight - sshOutputBlock.clientHeight;
+        };
+
+        commandSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly.');
+        };
+
+        function execute_command(e) {
+            // toggle_block();
             if (e == 'custom_command') {
                 // if invoked custom command execution
                 commandSocket.send(JSON.stringify({
@@ -82,6 +83,8 @@
                     //,'disconnect': 'Y'
                 }));
             } else
+                // send command pk to server
+                sshOutput.innerText = '';
                 commandSocket.send(JSON.stringify({
                     'command_pk': e.target.id
                     //,'disconnect': 'Y'
@@ -100,12 +103,15 @@
         };
         document.querySelector('#show-manual-input').onclick = function () {
             document.querySelector('#manual-input-block').classList.toggle('d-none');
+            document.querySelector('#manual-command').focus()
         };
 
         $('input[type=text]').on('keydown', function (e) {
+            // Enter button press
             if (e.which == 13) {
                 e.preventDefault();
-                execute_command('custom_command')
+                execute_command('custom_command');
+                document.querySelector('#manual-command').value = '';
             }
         });
     </script>

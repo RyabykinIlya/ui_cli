@@ -29,13 +29,12 @@ class ServersListView(ListView):
 
     def check_server_status(self, context):
         for contour in context['object_list']:
-            '''for server in contour.servers:
+            for server in contour.servers:
                 # for server in context['server_list']:
-                if check_socket_openned(server.ip_address, server.ssh_port) == 0:
+                if check_socket_openned(server.ip_address, server.ssh_port):
                     server.status = 'online'
                 else:
                     server.status = 'offline'
-            '''
 
     def get_queryset(self):
         contour_servers = Contour.cobjects.all().get_restricted(user=get_user(self)).order_by('-order_by')
@@ -55,7 +54,7 @@ class CSCUListView(ListView):
     paginate_by = 100
 
     def get_queryset(self):
-        return super().get_queryset().order_by('-end_time', '-start_time')
+        return super().get_queryset().order_by('-start_time')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

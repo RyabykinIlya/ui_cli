@@ -13,10 +13,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
+from django.urls import path, include
 
 from . import views
-from .consumers import CommandsConsumer
+from .consumers import SyncCommandsConsumer, AsyncCommandsConsumer
 
 urlpatterns = [
     path('', views.main_view, name='main'),
@@ -25,7 +25,10 @@ urlpatterns = [
     path('commands/history/', views.CSCUListView.as_view(), name='cscu-list'),
 ]
 
+urlpatterns += [
+    path('django-rq/', include('django_rq.urls'))
+]
+
 websocket_urlpatterns = [
-    path('ws/server/<int:pk>/', CommandsConsumer),
-    path('ws/server/disconnect/<int:pk>/', CommandsConsumer),
+    path('ws/server/<int:pk>/', SyncCommandsConsumer),
 ]

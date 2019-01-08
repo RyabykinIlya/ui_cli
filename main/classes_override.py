@@ -18,7 +18,6 @@ class CustomModelAdmin(admin.ModelAdmin):
             'all': ('admin/style.css',)
         }
 
-
 class WebsocketConsumerCustom(WebsocketConsumer):
     'Overriding WebsocketConsumer class for better functionality.'
 
