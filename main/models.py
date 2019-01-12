@@ -111,6 +111,11 @@ class MenuItems(ModelWithUser, models.Model):
     link = models.CharField(max_length=40, null=True, blank=True, verbose_name='Ссылка на страницу')
     is_sub = models.BooleanField(blank=False, verbose_name='Подкатегория?', null=False)
     is_public = models.BooleanField(verbose_name='Паблик?', default=True)
+    ''' TODO
+    show_on_page = models.CharField(max_length=50, null=True, verbose_name='Показывать на страницах',
+                                    help_text='Укажите шаблон ссылки на страницу, для которой необходимо отображать'
+                                              'данную ссылку в меню')
+    '''
 
     def __str__(self):
         return str(self.item)

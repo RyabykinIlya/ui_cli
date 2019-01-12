@@ -1,0 +1,231 @@
+{% extends 'main/base.html' %}
+{% block title %}
+    <title>Список комманд</title>
+{% endblock %}
+{% block header %}
+    Выберите параметры запуска и команду для работы
+{% endblock %}
+{% block content %}
+    <div class="alert alert-warning d-none" role="alert" id="warning-text"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="input-group-sm col-md-6 mb-3 p-3" id="delay-block">
+                <div class="mb-3">
+                    <button type="button" class="close cancel-choose" id="range-to-default"
+                            data-cancel="#delayRange,#delayAmount" for="delay-block">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <label>Отложенный запуск:&nbsp;через</label>
+                    <input name="delayAmount" id="delayAmount"
+                           for="delayRange" value="0" class="delayed-start"
+                           oninput="delayRange.value=delayAmount.value">
+                    минут
+                </div>
+                <input type="range" class="custom-range" name="delayRange" min="0"
+                       max="60" step="1" value="0" id="delayRange"
+                       oninput="delayAmount.value=delayRange.value">
+
+            </div>
+            <div class="input-group-sm col-md-6 mb-3 p-3" id="start-block">
+                <div class="mb-3">
+                    <button type="button" class="close cancel-choose" id="time-to-default"
+                            data-cancel="#startTime" for="start-block">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <label>Запуск ко времени</label>
+                </div>
+                <input class="form-control" type="time" id="startTime">
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="list-group col-md-12" id="command-list">
+                Выберите комманду
+                {% for command in object_list %}
+                    <a class="list-group-item list-group-item-action flex-column align-items-start command"
+                       id="command{{ command.id }}">
+                        <div class="d-flex w-100 justify-content-between command-name" for="command{{ command.id }}">
+                            <h5 class="mb-1" for="command{{ command.id }}">{{ command.name }}</h5>
+                            <small for="command{{ command.id }}">Locked: False</small>
+                        </div>
+                        <p class="mb-1" for="command{{ command.id }}">{{ command.description }}</p>
+                        <!--<small>Donec id elit non mi porta.</small>-->
+                    </a>
+                {% endfor %}
+            </div>
+            <div class="col-md-6 d-none" id="servers-block">
+                Выберите сервера для выполнения<br>
+                <div id="server-list"></div>
+            </div>
+        </div>
+
+        <div class="d-none" id="result">Запустить команду
+            <kbd id="command-name" data-command=""></kbd> через <kbd id="command-delay"></kbd> минут
+            <в> на сервере(ах)
+                <название сервера>
+        </div>
+        <button>Запуск</button>
+    </div>
+    <script>
+        // get command list elements
+        var commands = document.querySelectorAll('a.command');
+
+        function construct_servers(dict) {
+            var dict = JSON.parse(dict),
+                animate_delay = 400;
+
+            function form_choise_block(server_name, server_pk) {
+                // returns choise structured block for server
+
+                return '<div class="col-auto my-1">' +
+                    '<div class="custom-control custom-checkbox mr-sm-2">' +
+                        '<input type="checkbox" class="custom-control-input"' +
+                        'data-server="' + server_pk + '" id="server-checkbox-' + server_pk + '">' +
+                        '<label class="custom-control-label" for="server-checkbox-' + server_pk + '">' +
+                    server_name + '</label>' +
+                    '</div>' +
+                '</div>'
+            }
+
+            // clean up div contained someth !!Important!
+            $('#server-list').empty();
+            // dictionary unpacking
+            // structure:
+            // [{'PSI': [{'server_name': 'sblsmapp-psi', 'server_pk': 1, any keys}]},
+            // {'DEV': [{'server_name': 'sblsmapp-dev', 'server_pk': 2, any keys},
+            //          {'server_name': 'sblsmweb-dev', 'server_pk': 4,any keys}]},
+            // {'PROD': [{'server_name': 'sblsmapp-prod', 'server_pk': 3, any keys}]}]
+            for (var key in dict) {
+                for (var contour in dict[key]) {
+                    $('#server-list').append(contour);
+                    for (var server in dict[key][contour])
+                        //console.log(dict[key][contour][server])
+                        $('#server-list').append(form_choise_block(dict[key][contour][server]['server_name'],
+                                                                    dict[key][contour][server]['server_pk']));
+                }
+            }
+
+            $('#command-list').animate({maxWidth: "50%"}, animate_delay);
+            setTimeout(function() {$('#servers-block').removeClass('d-none');}, animate_delay);
+
+        }
+
+        var commandSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/commands/');
+
+        commandSocket.onopen = function () {
+            console.log("Connection successful.");
+        };
+        commandSocket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            construct_servers(data['servers']);
+            // sshOutput.innerText += (message.trim() + '\n');
+        };
+
+        commandSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly.');
+        };
+
+        // set click event on each list element
+        for (var i = 0; i < commands.length; i++) {
+            commands[i].addEventListener('click', function (e) {
+                // TODO make other function that removes d-none if all fields have values
+                $('#result').removeClass('d-none');
+
+                // get target of clicked element
+                var target = e.target.getAttribute('for');
+
+                // for each clickable element return true parent list element
+                if (target === null) {
+                    // if clicked parent list elem
+                    target = $('#' + e.target.id);
+                }
+                else {
+                    target = $('#' + target);
+                }
+
+                // fill result message
+                commmand_id = target.attr('id').replace(/^\D+/g, '');
+                $('#command-name').text(target.children('div.command-name').children('h5').text());
+                $('#command-name').attr('data-command', commmand_id);
+
+                // first remove active classes for all list elems
+                $('a.command').removeClass('active');
+
+                // add active to clicked list elem
+                target.addClass('active');
+
+                commandSocket.send(JSON.stringify({
+                    'command_pk': commmand_id
+                }));
+            });
+        }
+
+        warning_block = $('#warning-text');
+        function trigger_warning(message) {
+            // function to show warning message-block
+            // pass message arg to show block
+
+            if (message !== undefined) {
+                warning_block.text(message);
+                warning_block.removeClass('d-none');
+            } else {
+                warning_block.addClass('d-none');
+            }
+        }
+
+        function manage_shadow(target) {
+            // function to control shadow on time-picker and delay-timer blocks
+            // pass changed control as target
+
+            function get_parent_block(target) {
+                if (target.attr('id') == 'delayAmount') {
+                    return target.parent().parent()
+                } else {
+                    return target.parent()
+                }
+            }
+
+            // add shadow to choosen block
+            if (target.val() != $('#delayRange').attr('min') && target.val() != "") {
+                get_parent_block(target).addClass('block-choosen');
+            } else {
+                get_parent_block(target).removeClass('block-choosen');
+            }
+
+            time_blocks = $("#delay-block,#start-block");
+
+            // add concurrent (red) shadow to both blocks
+            if (time_blocks.filter(".block-choosen").length == time_blocks.length) {
+                time_blocks.addClass('concurrent-param');
+                trigger_warning('Удалите один из параметров запуска выделенный красным, нажав на крестик.')
+            } else {
+                time_blocks.removeClass('concurrent-param');
+                trigger_warning();
+            }
+        }
+
+        // close button click event
+        $(".cancel-choose").click(function (e) {
+            range_id = $(e.target).parent().attr('data-cancel');
+            $(range_id).val(0);
+            $(range_id).trigger('change');
+        });
+
+        $("#delayAmount, #delayRange, #startTime").on("change", function (e) {
+            target = $(e.target);
+
+            // if #delayAmount has value more than max
+            max_delay_range = $('#delayRange').attr('max');
+            if (target.attr('id') == 'delayAmount' && parseInt(target.val()) > parseInt(max_delay_range))
+                target.val(max_delay_range);
+
+            // set value in result message
+            $('#command-delay').text(e.target.value);
+
+            manage_shadow(target);
+        });
+    </script>
+{% endblock %}

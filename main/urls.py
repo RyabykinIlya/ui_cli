@@ -16,13 +16,15 @@ Including another URLconf
 from django.urls import path, include
 
 from . import views
-from .consumers import SyncCommandsConsumer, AsyncCommandsConsumer
+from .consumers import \
+    SyncCommandsConsumer, AsyncCommandsConsumer, SyncCommandServerConsumer
 
 urlpatterns = [
     path('', views.main_view, name='main'),
-    path('servers/', views.ServersListView.as_view(), name='servers-list'),
+    path('servers/', views.ServerListView.as_view(), name='servers-list'),
     path('server/<int:pk>/', views.ServerDetail.as_view(), name='server-detail'),
     path('commands/history/', views.CSCUListView.as_view(), name='cscu-list'),
+    path('commands/', views.ServerCommandListView.as_view(), name='servercommand-list'),
 ]
 
 urlpatterns += [
@@ -31,4 +33,5 @@ urlpatterns += [
 
 websocket_urlpatterns = [
     path('ws/server/<int:pk>/', SyncCommandsConsumer),
+    path('ws/commands/', SyncCommandServerConsumer),
 ]

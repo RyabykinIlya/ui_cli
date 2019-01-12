@@ -46,10 +46,6 @@
         var sshOutput = document.querySelector('#ssh-output');
         var sshOutputBlock = document.querySelector('#ssh-out-scrollblock');
 
-        var commandSocket = new WebSocket(
-            'ws://' + window.location.host +
-            '/ws/server/' + serverId + '/');
-
         function toggle_block() {
             // toggle if block is hidden
             sshOutBlock = document.querySelector('#ssh-out-block');
@@ -57,6 +53,11 @@
                 sshOutBlock.classList.toggle('d-none');
             }
         }
+
+        var commandSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/server/' + serverId + '/');
+
         commandSocket.onopen = function () {
             $('div#command-group button').removeClass('disabled');
             console.log("Connection successful.");
@@ -71,6 +72,7 @@
         };
 
         commandSocket.onclose = function (e) {
+            $('div#command-group button').addClass('disabled');
             console.error('Chat socket closed unexpectedly.');
         };
 
@@ -83,12 +85,12 @@
                     //,'disconnect': 'Y'
                 }));
             } else
-                // send command pk to server
+            // send command pk to server
                 sshOutput.innerText = '';
-                commandSocket.send(JSON.stringify({
-                    'command_pk': e.target.id
-                    //,'disconnect': 'Y'
-                }));
+            commandSocket.send(JSON.stringify({
+                'command_pk': e.target.id
+                //,'disconnect': 'Y'
+            }));
         }
         var executionButtons = document.querySelectorAll('button[data-command]:not([value=""])');
         for (var i = 0; i < executionButtons.length; i++) {
@@ -103,7 +105,7 @@
         };
         document.querySelector('#show-manual-input').onclick = function () {
             document.querySelector('#manual-input-block').classList.toggle('d-none');
-            document.querySelector('#manual-command').focus()
+            document.querySelector('#manual-command').focus();
         };
 
         $('input[type=text]').on('keydown', function (e) {

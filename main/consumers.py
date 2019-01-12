@@ -3,13 +3,14 @@ from datetime import datetime
 
 from asgiref.sync import sync_to_async, async_to_sync
 from paramiko.ssh_exception import SSHException
+from itertools import groupby
 import django_rq
 
 from . import models
 from .classes_override import WebsocketConsumerCustom, AsyncWebsocketConsumerCustom
 from .help import get_user
 from .ssh_modules import SshCommandExecuter
-from .models import Server, CSCU
+from .models import Server, CSCU, Contour
 from .tasks import HistoryLogger, create
 
 
@@ -68,6 +69,40 @@ class SyncCommandsConsumer(WebsocketConsumerCustom):
             }))
         else:
             django_rq.enqueue(self.cscu_hist.unlock_command, datetime.now())
+
+class SyncCommandServerConsumer(WebsocketConsumerCustom):
+    def connect(self):
+        # create connection to server once
+        self.accept()
+
+    def disconnect(self, close_code='0'):
+        self.close()
+
+    def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+
+        # get available servers for this command related to permissions
+        available_servers = Server.cobjects.filter(
+            commands__pk=text_data_json['command_pk']).get_restricted(user=get_user(self))
+
+        # struct dictionary with data
+        servers_dict = [{'contour_name':srvr.contour.name,
+                         'contour_order': srvr.contour.order_by,
+                         'server_name':srvr.name,
+                         'server_pk': srvr.pk}
+                        for srvr in available_servers]
+
+        # create list of grouped and sorted Contour:Servers dicts
+        grouped_sorted_servers = [{el[0]: list(el[1])} for el in
+                                groupby(sorted(sorted(servers_dict,
+                                                           key=lambda x: x['contour_name']),
+                                                    key=lambda x: x['contour_order'])
+                                    , lambda x: x['contour_name'])]
+
+        self.send(text_data=json.dumps({
+            # replace ' as " for js JSON.parse (that cannot read dict with this sign -> ' )
+            'servers': str(grouped_sorted_servers).replace('\'','\"')
+        }))
 
 
 class AsyncCommandsConsumer(AsyncWebsocketConsumerCustom):

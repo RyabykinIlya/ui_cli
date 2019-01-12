@@ -23,7 +23,7 @@ class ServerDetail(DetailView):
         return context
 
 
-class ServersListView(ListView):
+class ServerListView(ListView):
     paginate_by = 100
     template_name = 'main/server_list.html'
 
@@ -55,6 +55,20 @@ class CSCUListView(ListView):
 
     def get_queryset(self):
         return super().get_queryset().order_by('-start_time')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class ServerCommandListView(ListView):
+    model = ServerCommand
+    template_name = 'main/servercommand_list.html'
+    paginate_by = 100
+
+    def get_queryset(self):
+        server_commands = ServerCommand.cobjects.all().get_restricted(user=get_user(self))
+        return server_commands
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

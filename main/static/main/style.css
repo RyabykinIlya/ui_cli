@@ -28,7 +28,6 @@ body {
     padding: 20px 0;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-    border-left: 1px solid #eee;
     background-color: white;
 }
 
@@ -56,7 +55,6 @@ body {
         padding: 0 0;
         overflow-x: hidden;
         overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-        border-bottom: 1px solid #eee;
         background-color: white;
     }
 
@@ -419,7 +417,7 @@ ol {
     padding: .25rem .75rem;
     margin-bottom: 0;
     background-color: rgba(53, 238, 19, 0.28);
-    border-bottom: 1px solid rgba(0,0,0,.125);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
 }
 
 #ssh-out-scrollblock {
@@ -427,7 +425,47 @@ ol {
     overflow-y: scroll;
     overflow-x: hidden;
 }
+
 .card-execute {
-    background-color: rgba(0,0,0,.03);
-    border-top: 1px solid rgba(0,0,0,.125);
+    background-color: rgba(0, 0, 0, .03);
+    border-top: 1px solid rgba(0, 0, 0, .125);
+}
+
+.delayed-start {
+    width: 35px;
+    padding: .175rem .35rem;
+    font-size: 1rem;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.list-group-item.active {
+    z-index: 2;
+    color: #fff;
+    background-color: #abdde5;
+    border-color: #c3e6cb;
+}
+
+.block-choosen {
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    border: 1px solid #c3e6cb;
+    box-shadow: 0 0 10px #c3e6cb;
+}
+.concurrent-param {
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    border: 1px solid #e63c36;
+    box-shadow: 0 0 10px #e63c36;
+}
+
+button.cancel-choose:active, button.cancel-choose:focus {
+  outline: none;
+}
+button.cancel-choose::-moz-focus-inner {
+  border: 0;
 }
