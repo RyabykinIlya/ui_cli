@@ -16,13 +16,13 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <label>Отложенный запуск:&nbsp;через</label>
-                    <input name="delayAmount" id="delayAmount"
-                           for="delayRange" value="0" class="delayed-start"
-                           oninput="delayRange.value=delayAmount.value">
+                    <output name="delayAmount" id="delayAmount"
+                            for="delayRange" value="0" class="delayed-start">0
+                    </output>
                     минут
                 </div>
                 <input type="range" class="custom-range" name="delayRange" min="0"
-                       max="60" step="1" value="0" id="delayRange"
+                       max="60" step="1" value="0" id="delayRange" data-param="delayTime"
                        oninput="delayAmount.value=delayRange.value">
 
             </div>
@@ -34,7 +34,7 @@
                     </button>
                     <label>Запуск ко времени</label>
                 </div>
-                <input class="form-control" type="time" id="startTime">
+                <input class="form-control" type="time" id="startTime" data-param="startTime">
             </div>
 
         </div>
@@ -44,12 +44,12 @@
                 Выберите комманду
                 {% for command in object_list %}
                     <a class="list-group-item list-group-item-action flex-column align-items-start command"
-                       id="command{{ command.id }}">
-                        <div class="d-flex w-100 justify-content-between command-name" for="command{{ command.id }}">
-                            <h5 class="mb-1" for="command{{ command.id }}">{{ command.name }}</h5>
-                            <small for="command{{ command.id }}">Locked: False</small>
+                       id="command{{ command.id }}" data-param="command" value="{{ command.name }}">
+                        <div class="d-flex w-100 justify-content-between command-name">
+                            <h5 class="mb-1">{{ command.name }}</h5>
+                            <small>Locked: False</small>
                         </div>
-                        <p class="mb-1" for="command{{ command.id }}">{{ command.description }}</p>
+                        <p class="mb-1">{{ command.description }}</p>
                         <!--<small>Donec id elit non mi porta.</small>-->
                     </a>
                 {% endfor %}
@@ -61,35 +61,106 @@
         </div>
 
         <div class="d-none" id="result">Запустить команду
-            <kbd id="command-name" data-command=""></kbd> через <kbd id="command-delay"></kbd> минут
-            <в> на сервере(ах)
-                <название сервера>
+            <span id="result-message">
+                <span id="command-command" class="d-none"><kbd></kbd></span>
+                <span id="command-delayTime" class="d-none">через <kbd></kbd> минут</span>
+                <span id="command-startTime" class="d-none">в <kbd></kbd></span>
+                <span id="command-server" class="d-none">на сервере(ах) <kbd></kbd></span>
+            </span>
         </div>
         <button>Запуск</button>
     </div>
     <script>
-        // get command list elements
-        var commands = document.querySelectorAll('a.command');
+        // 'use strict';
+        function refresh_result_message() {
+            // function aggregates data from controls to result message
+
+            function return_param(param_name) {
+                // returns filtered param(s) from aggregated list of elements
+
+                return {
+                    [param_name]: $(choosen_params).filter(function () {
+                        return ($(this).attr('data-param') == param_name) === true;
+                    })
+                };
+            }
+
+            var choosen_params = document.querySelectorAll('[data-choosen="active"]'),
+                params_list = [return_param('command'),
+                    return_param('server'),
+                    return_param('delayTime'),
+                    return_param('startTime')];
+
+             $('#result').removeClass('d-none');
+
+            // iterate through array of params
+            for (var i in params_list) {
+
+                // iterate through each param dictionary with getting key:control values
+                Object.entries(params_list[i]).forEach(([key, control]) => {
+
+                    // if control for param is activated
+                    if (control.length > 0){
+                        // construct and set individual block of result message
+                        // individuals by combination of $('#command-' + key + ' kbd')
+                        var values = '';
+                        for (var j=0; j < control.length; j++) {
+
+                            if (j > 0)
+                                values += ', ';
+
+                            // if control have not val attribute (imput type = range/time, etc.)
+                            if ($(control[j]).val() == '')
+                                values += $(control[j]).attr('value');
+                            else
+                                values += $(control[j]).val();
+                        }
+
+                        $('#command-' + key + ' kbd').text(values);
+                        $('#command-' + key).removeClass('d-none');
+                    } else {
+                        // hide block from result message if there is nothing choosen
+                        $('#command-' + key).addClass('d-none');
+                    }
+                });
+            }
+        }
 
         function construct_servers(dict) {
             var dict = JSON.parse(dict),
                 animate_delay = 400;
+
+            function set_listeners_on_servers_check_boxes() {
+                // get server check boxes elements
+                var servers = document.querySelectorAll('[data-param="server"]');
+
+                $(servers).on("change", function () {
+                    if (this.checked)
+                        $(this).attr('data-choosen', 'active');
+                    else
+                        $(this).attr('data-choosen', '');
+
+                    refresh_result_message();
+                });
+            };
 
             function form_choise_block(server_name, server_pk) {
                 // returns choise structured block for server
 
                 return '<div class="col-auto my-1">' +
                     '<div class="custom-control custom-checkbox mr-sm-2">' +
-                        '<input type="checkbox" class="custom-control-input"' +
-                        'data-server="' + server_pk + '" id="server-checkbox-' + server_pk + '">' +
-                        '<label class="custom-control-label" for="server-checkbox-' + server_pk + '">' +
+                    '<input type="checkbox" class="custom-control-input" data-param="server"' +
+                    'value="' + server_name + '"' +
+                    'data-server="' + server_pk + '" id="server-checkbox-' + server_pk + '">' +
+                    '<label class="custom-control-label" for="server-checkbox-' + server_pk + '">' +
                     server_name + '</label>' +
                     '</div>' +
-                '</div>'
+                    '</div>'
             }
 
             // clean up div contained someth !!Important!
             $('#server-list').empty();
+
             // dictionary unpacking
             // structure:
             // [{'PSI': [{'server_name': 'sblsmapp-psi', 'server_pk': 1, any keys}]},
@@ -102,13 +173,16 @@
                     for (var server in dict[key][contour])
                         //console.log(dict[key][contour][server])
                         $('#server-list').append(form_choise_block(dict[key][contour][server]['server_name'],
-                                                                    dict[key][contour][server]['server_pk']));
+                            dict[key][contour][server]['server_pk']));
                 }
             }
 
             $('#command-list').animate({maxWidth: "50%"}, animate_delay);
-            setTimeout(function() {$('#servers-block').removeClass('d-none');}, animate_delay);
+            setTimeout(function () {
+                $('#servers-block').removeClass('d-none');
+            }, animate_delay);
 
+            set_listeners_on_servers_check_boxes()
         }
 
         var commandSocket = new WebSocket(
@@ -128,38 +202,29 @@
             console.error('Chat socket closed unexpectedly.');
         };
 
+        // get command list elements
+        var commands = document.querySelectorAll('[data-param="command"]');
+
         // set click event on each list element
         for (var i = 0; i < commands.length; i++) {
-            commands[i].addEventListener('click', function (e) {
-                // TODO make other function that removes d-none if all fields have values
-                $('#result').removeClass('d-none');
-
-                // get target of clicked element
-                var target = e.target.getAttribute('for');
-
-                // for each clickable element return true parent list element
-                if (target === null) {
-                    // if clicked parent list elem
-                    target = $('#' + e.target.id);
-                }
-                else {
-                    target = $('#' + target);
-                }
-
-                // fill result message
-                commmand_id = target.attr('id').replace(/^\D+/g, '');
-                $('#command-name').text(target.children('div.command-name').children('h5').text());
-                $('#command-name').attr('data-command', commmand_id);
+            commands[i].addEventListener('click', function () {
 
                 // first remove active classes for all list elems
                 $('a.command').removeClass('active');
 
                 // add active to clicked list elem
-                target.addClass('active');
+                $(this).addClass('active');
+
+                // set data-choosen attribute to active (needed to choose params for execution)
+                // clean up others first
+                $('a.command').attr('data-choosen', '');
+                $(this).attr('data-choosen', 'active');
 
                 commandSocket.send(JSON.stringify({
-                    'command_pk': commmand_id
+                    'command_pk': this.id.replace(/^\D+/g, '')
                 }));
+
+                refresh_result_message();
             });
         }
 
@@ -180,19 +245,11 @@
             // function to control shadow on time-picker and delay-timer blocks
             // pass changed control as target
 
-            function get_parent_block(target) {
-                if (target.attr('id') == 'delayAmount') {
-                    return target.parent().parent()
-                } else {
-                    return target.parent()
-                }
-            }
-
             // add shadow to choosen block
             if (target.val() != $('#delayRange').attr('min') && target.val() != "") {
-                get_parent_block(target).addClass('block-choosen');
+                target.parent().addClass('block-choosen');
             } else {
-                get_parent_block(target).removeClass('block-choosen');
+                target.parent().removeClass('block-choosen');
             }
 
             time_blocks = $("#delay-block,#start-block");
@@ -208,24 +265,26 @@
         }
 
         // close button click event
-        $(".cancel-choose").click(function (e) {
-            range_id = $(e.target).parent().attr('data-cancel');
+        $(".cancel-choose").click(function () {
+            range_id = $(this).attr('data-cancel');
             $(range_id).val(0);
-            $(range_id).trigger('change');
+            $(range_id).attr('data-choosen', '');
+            $(range_id).trigger('change', true);
         });
 
-        $("#delayAmount, #delayRange, #startTime").on("change", function (e) {
+        $("#delayRange, #startTime").on("change", function (e, cleanup) {
+            // pass cleanup == true if invoked to unset values
             target = $(e.target);
 
-            // if #delayAmount has value more than max
-            max_delay_range = $('#delayRange').attr('max');
-            if (target.attr('id') == 'delayAmount' && parseInt(target.val()) > parseInt(max_delay_range))
-                target.val(max_delay_range);
+            // set data-choosen attribute to active (needed to choose params for execution)
+            if (!cleanup)
+                target.attr('data-choosen', 'active');
 
             // set value in result message
             $('#command-delay').text(e.target.value);
 
             manage_shadow(target);
+            refresh_result_message();
         });
     </script>
 {% endblock %}

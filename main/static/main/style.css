@@ -432,13 +432,13 @@ ol {
 }
 
 .delayed-start {
-    width: 35px;
+    /* width: 35px; */
     padding: .175rem .35rem;
     font-size: 1rem;
     color: #495057;
     background-color: #fff;
     background-clip: padding-box;
-    border: 1px solid #ced4da;
+    /* border: 1px solid #ced4da; */
     border-radius: .25rem;
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
