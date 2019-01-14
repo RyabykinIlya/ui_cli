@@ -1,0 +1,12 @@
+[
+  {
+    "model": "main.contour",
+    "pk": 1,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "DEV",
+      "description": "Developers contour",
+      "order_by": 1
+    }
+  }
+]

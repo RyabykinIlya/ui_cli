@@ -1,0 +1,72 @@
+[
+  {
+    "model": "main.menuitems",
+    "pk": 1,
+    "fields": {
+      "last_upd_by": 1,
+      "item": "\u0413\u043b\u0430\u0432\u043d\u0430\u044f",
+      "title": "\u0413\u043b\u0430\u0432\u043d\u0430\u044f \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430",
+      "item_id": "main",
+      "order_by": 1,
+      "link": "/",
+      "is_sub": false,
+      "is_public": true
+    }
+  },
+  {
+    "model": "main.menuitems",
+    "pk": 2,
+    "fields": {
+      "last_upd_by": 1,
+      "item": "\u0410\u0434\u043c\u0438\u043d-\u043f\u0430\u043d\u0435\u043b\u044c",
+      "title": "\u0410\u0434\u043c\u0438\u043d-\u043f\u0430\u043d\u0435\u043b\u044c",
+      "item_id": "admin",
+      "order_by": 2,
+      "link": "/admin/",
+      "is_sub": false,
+      "is_public": true
+    }
+  },
+  {
+    "model": "main.menuitems",
+    "pk": 3,
+    "fields": {
+      "last_upd_by": 1,
+      "item": "\u0421\u0435\u0440\u0432\u0435\u0440\u0430",
+      "title": "\u0421\u0435\u0440\u0432\u0435\u0440\u0430",
+      "item_id": "servers",
+      "order_by": 3,
+      "link": "/servers/",
+      "is_sub": false,
+      "is_public": true
+    }
+  },
+  {
+    "model": "main.menuitems",
+    "pk": 4,
+    "fields": {
+      "last_upd_by": 1,
+      "item": "\u0418\u0441\u0442\u043e\u0440\u0438\u044f \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u0438\u0439",
+      "title": "\u0418\u0441\u0442\u043e\u0440\u0438\u044f \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u0438\u0439 \u043a\u043e\u043c\u043c\u0430\u043d\u0434",
+      "item_id": "history",
+      "order_by": 5,
+      "link": "/commands/history/",
+      "is_sub": false,
+      "is_public": true
+    }
+  },
+  {
+    "model": "main.menuitems",
+    "pk": 5,
+    "fields": {
+      "last_upd_by": 1,
+      "item": "\u041a\u043e\u043c\u0430\u043d\u0434\u044b",
+      "title": "\u0421\u043f\u0438\u0441\u043e\u043a \u043a\u043e\u043c\u0430\u043d\u0434",
+      "item_id": "commands",
+      "order_by": 4,
+      "link": "/commands/",
+      "is_sub": false,
+      "is_public": true
+    }
+  }
+]

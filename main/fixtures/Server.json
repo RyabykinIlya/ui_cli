@@ -1,0 +1,15 @@
+[
+  {
+    "model": "main.server",
+    "pk": 1,
+    "fields": {
+      "last_upd_by": null,
+      "name": "localhost",
+      "ip_address": "127.0.0.1",
+      "ssh_port": 522,
+      "user": "root",
+      "password": "root",
+      "contour": 1
+    }
+  }
+]

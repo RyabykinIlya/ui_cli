@@ -1,0 +1,17 @@
+[
+  {
+    "model": "main.servercommand",
+    "pk": 1,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "echo",
+      "command": "echo 'hello world'",
+      "description": "Prints hello world",
+      "average_execution_time": 0.1,
+      "lock_enable": false,
+      "server": [
+        1
+      ]
+    }
+  }
+]
