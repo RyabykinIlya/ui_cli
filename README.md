@@ -4,7 +4,16 @@ Django version 2.0.2 'final'
 
 
 Проект для работы с *nix-like системами, выполнение комманд через UI-интерфейс.
+
 Реализована модель Контур-Сервер-Команда.
+
+Initialize Demo:
+- set up any database in settings.py
+- set up redis queue and add credentials into RQ_QUEUES block in settings.py
+- python manage.py makemigrations
+- python manage.py migrate
+- python manage.py loaddata User MenuItems Contour Server ServerCommand
+- login as admin/qwerty$4
 
 
 #### **TODO:**
@@ -33,3 +42,30 @@ Django version 2.0.2 'final'
 12. Выполнение комманд на нескольких серверах последовательно/параллельно
 13. При нажатии выполнить в окне выбираешь время выполнения/через сколько запустить(ползунком).
 Для каждого пользователя есть экран с очередью задач, либо общая очередь, но отменять/переносить могут только те, кто создавал.
+14. Доработать поле show_on_page для модели MenuItems
+15. Locked на экране выполнения комманд сделать через общий веб-сокет с каналами, чтобы в реальном времени отображался статус
+
+make regroup for server-command:
+ cities = [
+    {'name': 'Mumbai', 'population': '19,000,000', 'country': 'India'},
+    {'name': 'Calcutta', 'population': '15,000,000', 'country': 'India'},
+    {'name': 'New York', 'population': '20,000,000', 'country': 'USA'},
+    {'name': 'Chicago', 'population': '7,000,000', 'country': 'USA'},
+    {'name': 'Tokyo', 'population': '33,000,000', 'country': 'Japan'},
+]
+
+...
+
+{% regroup cities by country as country_list %}
+
+<ul>
+    {% for country in country_list %}
+        <li>{{ country.grouper }}
+            <ul>
+            {% for city in country.list %}
+                <li>{{ city.name }}: {{ city.population }}</li>
+            {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
