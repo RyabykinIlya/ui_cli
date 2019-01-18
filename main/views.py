@@ -3,10 +3,11 @@ from django.views.generic import DetailView, ListView
 from django.utils.safestring import mark_safe
 
 import json
+from itertools import groupby
 
 from .models import Server, ServerCommand, Contour, CSCU
 from .ssh_modules import check_socket_openned
-from .help import get_user
+from .helpers import get_user
 
 
 def main_view(request):
@@ -28,19 +29,25 @@ class ServerListView(ListView):
     template_name = 'main/server_list.html'
 
     def check_server_status(self, context):
-        for contour in context['object_list']:
-            for server in contour.servers:
-                # for server in context['server_list']:
-                if check_socket_openned(server.ip_address, server.ssh_port):
-                    server.status = 'online'
-                else:
-                    server.status = 'offline'
+        for dict in context['object_list']:
+            for servers in dict.values():
+                for server in servers:
+                    if check_socket_openned(server.ip_address, server.ssh_port):
+                        server.status = 'online'
+                    else:
+                        server.status = 'offline'
 
     def get_queryset(self):
-        contour_servers = Contour.cobjects.all().get_restricted(user=get_user(self)).order_by('-order_by')
-        for contour in contour_servers:
-            contour.servers = Server.cobjects.filter(contour=contour).get_restricted(user=get_user(self))
-        return contour_servers
+        servers_dict = Server.cobjects.all().get_restricted(user=get_user(self)).order_by('contour')
+
+        # creates list of dicts with structure
+        # [{contour.name: <Server object>, <Server object>}, {..}, {..}]
+        grouped_sorted_servers = [{group[0]: list(group[1])} for group in
+                                  groupby(sorted(sorted(servers_dict,
+                                                        key=lambda server: server.contour.name),
+                                                 key=lambda server: server.contour.order_by)
+                                          , lambda server: server.contour.name)]
+        return grouped_sorted_servers
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

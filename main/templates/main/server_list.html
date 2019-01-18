@@ -6,35 +6,16 @@
     Выберите сервер для работы
 {% endblock %}
 {% block content %}
-    <!--
-    <div class="list-group">
-        {% for contour in object_list %}
-            <div class="contour-block">
-                {{ contour.name }}
-                {% for server in contour.servers %}
-                    <a href="{{ server.get_absolute_url }}" class="list-group-item list-group-item-action">
-                        {{ server.name }}:
-                        <small>{{ server.ip_address }}</small>
-                        <span class="badge {% if server.status == 'online' %}badge-success{% else %}badge-danger
-    {% endif %}
-                badge-pill float-right">{{ server.status }}</span>
-                    </a>
-                {% endfor %}
-            </div>
-        {% endfor %}
-    </div>
--->
-
     <div class="card-group">
-        {% for contour in object_list %}
-            {# {{ forloop.counter }}#}
-            <div class="col-server">
+    {% for dict in object_list %}
+        {% for contour, servers in dict.items %}
+             <div class="col-server">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{{ contour.name }}</h5>
+                        <h5 class="card-title">{{ contour }}</h5>
                         <p class="card-text">
                         <div class="list-group">
-                            {% for server in contour.servers %}
+                            {% for server in servers %}
                                 <a href="{{ server.get_absolute_url }}" class="list-group-item list-group-item-action">
                                     {{ server.name }}:
                                     <small>{{ server.ip_address }}</small>
@@ -48,5 +29,7 @@
                 </div>
             </div>
         {% endfor %}
-    </div>
+    {% endfor %}
+ </div>
+
 {% endblock %}

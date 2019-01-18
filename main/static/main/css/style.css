@@ -443,6 +443,14 @@ ol {
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
+.list-group-item {
+    position: relative;
+    display: block;
+    padding: .55rem 1.05rem;
+    margin-bottom: -1px;
+    border: 1px solid rgba(0,0,0,.125);
+}
+
 .list-group-item.active {
     z-index: 2;
     color: #fff;
@@ -469,3 +477,4 @@ button.cancel-choose:active, button.cancel-choose:focus {
 button.cancel-choose::-moz-focus-inner {
   border: 0;
 }
+

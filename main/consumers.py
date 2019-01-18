@@ -8,7 +8,7 @@ import django_rq
 
 from . import models
 from .classes_override import WebsocketConsumerCustom, AsyncWebsocketConsumerCustom
-from .help import get_user
+from .helpers import get_user
 from .ssh_modules import SshCommandExecuter
 from .models import Server, CSCU, Contour
 from .tasks import HistoryLogger, create
@@ -70,6 +70,7 @@ class SyncCommandsConsumer(WebsocketConsumerCustom):
         else:
             django_rq.enqueue(self.cscu_hist.unlock_command, datetime.now())
 
+
 class SyncCommandServerConsumer(WebsocketConsumerCustom):
     def connect(self):
         # create connection to server once
@@ -80,28 +81,36 @@ class SyncCommandServerConsumer(WebsocketConsumerCustom):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        if text_data_json.get('execute'):
+            self.execute_command(text_data_json['parameters'])
+        else:
+            self.send_servers_for_command(text_data_json['command_pk'])
 
+    def execute_command(self, params):
+        print(params)
+
+    def send_servers_for_command(self, command_pk):
         # get available servers for this command related to permissions
         available_servers = Server.cobjects.filter(
-            commands__pk=text_data_json['command_pk']).get_restricted(user=get_user(self))
+            commands__pk=command_pk).get_restricted(user=get_user(self))
 
         # struct dictionary with data
-        servers_dict = [{'contour_name':srvr.contour.name,
+        servers_dict = [{'contour_name': srvr.contour.name,
                          'contour_order': srvr.contour.order_by,
-                         'server_name':srvr.name,
+                         'server_name': srvr.name,
                          'server_pk': srvr.pk}
                         for srvr in available_servers]
 
         # create list of grouped and sorted Contour:Servers dicts
         grouped_sorted_servers = [{el[0]: list(el[1])} for el in
-                                groupby(sorted(sorted(servers_dict,
-                                                           key=lambda x: x['contour_name']),
-                                                    key=lambda x: x['contour_order'])
-                                    , lambda x: x['contour_name'])]
+                                  groupby(sorted(sorted(servers_dict,
+                                                        key=lambda x: x['contour_name']),
+                                                 key=lambda x: x['contour_order'])
+                                          , lambda x: x['contour_name'])]
 
         self.send(text_data=json.dumps({
             # replace ' as " for js JSON.parse (that cannot read dict with this sign -> ' )
-            'servers': str(grouped_sorted_servers).replace('\'','\"')
+            'servers': str(grouped_sorted_servers).replace('\'', '\"')
         }))
 
 
