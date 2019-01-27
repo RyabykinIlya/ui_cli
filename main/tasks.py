@@ -7,8 +7,8 @@ from ui_cli.celery import app
 from .ssh_modules import ssh_execute_command_for_server
 from .helpers import create_cscu_finish
 
-@shared_task
-def exec_cmd_task(user_pk, server_pk, command_pk, cscu_pk):
+@shared_task(bind=True)
+def exec_cmd_task(self, user_pk, server_pk, command_pk, cscu_pk):
     #return 'server: {}, command: {}, output: {}'.\
     #        format(server_pk, command_pk, ssh_execute_command_for_server(server_pk, command_pk, user_pk))
     try:
@@ -47,6 +47,7 @@ def finish_cmd_task(kargs):
             output = kargs['cmd_output']
             is_success = True
         else:
+            # if command has no output
             output = ''
             is_success = True
     elif 'error' in kargs:

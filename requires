@@ -1,0 +1,4 @@
+[
+'Django>=2.0.2',
+'channels-redis>=2.3.3'
+]

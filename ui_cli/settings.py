@@ -134,6 +134,16 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 360,
     }
 }
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', ports_to_connect['rq'])],
+        },
+    },
+}
+
 RQ_SHOW_ADMIN_LINK = True
 
 CELERY_RESULT_BACKEND = 'django-db'

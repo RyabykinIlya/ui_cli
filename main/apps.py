@@ -11,6 +11,7 @@ class MainConfig(AppConfig):
     verbose_name_plural = 'Основное'
 
     def ready(self):
+        import main.signals
         # check queues hosts connection
         for queue in RQ_QUEUES.values():
             if not check_socket_openned(queue['HOST'], int(queue['PORT']), 3):

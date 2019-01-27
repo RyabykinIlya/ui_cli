@@ -49,7 +49,7 @@
                         data-command="{{ command.id }}">
                         <div class="d-flex w-100 justify-content-between command-name">
                             <h5 class="mb-1">{{ command.name }}</h5>
-                            <small>Locked: False</small>
+                            <small>Locked: <span id="command{{ command.id }}-locked">False</span></small>
                         </div>
                         <p class="mb-1">{{ command.description }}</p>
                         <!--<small>Donec id elit non mi porta.</small>-->
@@ -256,6 +256,19 @@
 
             set_listeners_on_servers_check_boxes()
         }
+        
+        function manage_locks(pk, locked) {
+            link = $("a[data-command='" + pk + "']");
+            locked_text = $('#command' + pk + '-locked');
+            if (locked == true){
+                link.addClass('disabled');
+                locked_text.text('True');
+            } else {
+                link.removeClass('disabled');
+                locked_text.text('False');
+            }
+
+        }
 
         var commandSocket = new WebSocket(
             'ws://' + window.location.host +
@@ -268,6 +281,9 @@
             var data = JSON.parse(e.data);
             if (Object.keys(data)[0] == 'error' || Object.keys(data)[0] == 'info') {
                 trigger_msg(Object.keys(data)[0], data[Object.keys(data)[0]])
+            } else if (Object.keys(data)[0] == 'lock') {
+                var lock_info = JSON.parse(data['lock']);
+                manage_locks(lock_info['command_pk'], lock_info['locked'])
             } else {
                 construct_servers(data['servers']);
                 refresh_result_message();

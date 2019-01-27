@@ -59,25 +59,36 @@ class SyncCommandsConsumer(WebsocketConsumerCustom):
 class SyncCommandServerConsumer(WebsocketConsumerCustom):
     def connect(self):
         # create connection to server once
+
+        async_to_sync(self.channel_layer.group_add)('commands', self.channel_name)
         self.accept()
 
     def disconnect(self, close_code='0'):
         self.close()
 
+    def manage_locks(self, message):
+        self.send_msg('lock', message['text'])
+
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
+
         if text_data_json.get('execute'):
             self.execute_command(text_data_json['parameters'])
         else:
             self.send_servers_for_command(text_data_json['command_pk'])
 
     def send_msg(self, type, msg):
+        '''
+        type - info or error
+        msg - any string
+        '''
         self.send(text_data=json.dumps({
             str(type): str(msg)
         }))
 
     def execute_command(self, params):
         if params.get('command') and params.get('server'):
+            # TODO решить что делать с этим, как вызывать? обрабатывать в exec_cmd?
             exec_cmd(get_user(self).pk, params['server']['pk'], params['command']['pk'])
             self.send_msg(
                 'info', 'Команда {} добавлена в очередь для серверов: {}<br> Информация на странице <a>.'.format(
@@ -107,8 +118,7 @@ class SyncCommandServerConsumer(WebsocketConsumerCustom):
                                           , lambda x: x['contour_name'])]
 
         self.send(text_data=json.dumps({
-            # replace ' as " for js JSON.parse (that cannot read dict with this sign -> ' )
-            'servers': str(grouped_sorted_servers).replace('\'', '\"')
+            'servers': json.dumps(grouped_sorted_servers)
         }))
 
 

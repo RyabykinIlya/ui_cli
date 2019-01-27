@@ -74,8 +74,18 @@ def create_cscu_start(user_pk, server_pk, command_pk):
     return cscu_obj.pk
 
 def create_cscu_finish(cscu_pk, cmd_output, is_success=True):
-    CSCU.objects.filter(pk=cscu_pk).update(locked_status=False, end_time=datetime.now(),
-                                           cmd_output=cmd_output, is_success=is_success)
+    # should not use update method here
+    # because there no signal is sending using it
+    #cscu = CSCU.objects.filter(pk=cscu_pk).update(locked_status=False, end_time=datetime.now(),
+    #                                       cmd_output=cmd_output, is_success=is_success)
+    cscu = CSCU.objects.get(id=cscu_pk)
+
+    cscu.locked_status = False
+    cscu.end_time = datetime.now()
+    cscu.cmd_output = cmd_output
+    cscu.is_success = is_success
+
+    cscu.save()
 
 class HistoryLogger():
     def __init__(self, server, command, user, start_time):

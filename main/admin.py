@@ -66,7 +66,7 @@ class ServerCommandAdmin(CustomModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'command', 'description', 'average_execution_time')
+            'fields': ('name', 'command', 'description', 'average_execution_time', 'lock_enable')
         }),
         ('Связи с серверами', {
             # 'classes': ('collapse',),

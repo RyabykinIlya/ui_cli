@@ -106,8 +106,9 @@ class ServerCommand(ModelWithUser, RestrictedModel, models.Model):
 class MenuItems(ModelWithUser, models.Model):
     item = models.CharField(max_length=20, null=False, verbose_name='Название страницы')
     title = models.CharField(max_length=40, null=False, verbose_name='Title ссылки')
-    item_id = models.CharField(max_length=10, null=False,
-                               verbose_name='Id на странице')  # по нему происходит срабатывание активации пунктов меню
+    item_id = models.CharField(max_length=10, null=False, verbose_name='Id на странице',
+                               help_text='По этому параметру происходит активация пунктов меню'
+                                         '<br>Если url== */commands/history/, то нужно указать history')
     order_by = models.IntegerField(verbose_name='Порядок', null=False)
     link = models.CharField(max_length=40, null=True, blank=True, verbose_name='Ссылка на страницу')
     is_sub = models.BooleanField(blank=False, verbose_name='Подкатегория?', null=False)
