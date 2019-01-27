@@ -8,25 +8,10 @@ import django_rq
 
 from . import models
 from .classes_override import WebsocketConsumerCustom, AsyncWebsocketConsumerCustom
-from .helpers import get_user
+from .helpers import get_user, get_command_for_server, HistoryLogger
 from .ssh_modules import SshCommandExecuter
 from .models import Server, CSCU, Contour
-from .tasks import HistoryLogger, create
-
-
-def get_command_for_server(socket, server_pk, command_pk):
-    #
-    # Function for command validation, saves from executing command that does not exist for the chosen server
-    # or not available for current user
-    #
-    # should pass permission__user here for safer execution with permissions
-    # user can not execute command with no permissions for it
-    server_command = models.ServerCommand.cobjects. \
-        get(permission__user=get_user(socket), server=models.Server.objects.get(pk=server_pk), pk=command_pk)
-    if not server_command:
-        raise KeyError('Command with pk {} does not exist for this server.'.format(command_pk))
-
-    return server_command
+from .pretasks import exec_cmd
 
 
 class SyncCommandsConsumer(WebsocketConsumerCustom):
@@ -58,17 +43,17 @@ class SyncCommandsConsumer(WebsocketConsumerCustom):
         if 'command' in text_data_json:
             self.executer.execute(text_data_json['command'])
         else:
-            command_obj = get_command_for_server(self, self.server_pk, text_data_json['command_pk'])
+            command_obj = get_command_for_server(get_user(self).pk, self.server_pk, text_data_json['command_pk'])
             self.executer.execute(command_obj.command)
+        # TODO for manual command ?
         self.cscu_hist = HistoryLogger(self.server, command_obj, get_user(self), datetime.now())
-        django_rq.enqueue(self.cscu_hist.save)
         for message in self.executer.gen:
             self.send(text_data=json.dumps({
                 # 'std': self.executer.std,
                 'message': str(message)
             }))
         else:
-            django_rq.enqueue(self.cscu_hist.unlock_command, datetime.now())
+            self.cscu_hist.unlock_command(datetime.now())
 
 
 class SyncCommandServerConsumer(WebsocketConsumerCustom):
@@ -86,7 +71,20 @@ class SyncCommandServerConsumer(WebsocketConsumerCustom):
         else:
             self.send_servers_for_command(text_data_json['command_pk'])
 
+    def send_msg(self, type, msg):
+        self.send(text_data=json.dumps({
+            str(type): str(msg)
+        }))
+
     def execute_command(self, params):
+        if params.get('command') and params.get('server'):
+            exec_cmd(get_user(self).pk, params['server']['pk'], params['command']['pk'])
+            self.send_msg(
+                'info', 'Команда {} добавлена в очередь для серверов: {}<br> Информация на странице <a>.'.format(
+                    params['command']['value'], params['server']['value']))
+        else:
+            self.send_msg('error', 'Для выполнения команды нужно выбрать команду и один или несколько серверов.')
+
         print(params)
 
     def send_servers_for_command(self, command_pk):
@@ -132,7 +130,7 @@ class AsyncCommandsConsumer(AsyncWebsocketConsumerCustom):
         if 'command' in text_data_json:
             self.executer.func.execute(text_data_json['command'])
         else:
-            command_obj = get_command_for_server(self, self.server_pk, text_data_json['command_pk'])
+            command_obj = get_command_for_server(get_user(self).pk, self.server_pk, text_data_json['command_pk'])
             self.executer.func.execute(command_obj.command)
         self.cscu_hist = HistoryLogger(self.server, command_obj, get_user(self), datetime.now())
         django_rq.enqueue(self.cscu_hist.save)

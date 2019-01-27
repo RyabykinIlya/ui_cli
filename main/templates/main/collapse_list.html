@@ -1,0 +1,43 @@
+<div class="card font-small">
+    {% if cscu.is_success == None %}
+        <div class="card-header alert-primary">
+    {% elif cscu.is_success %}
+        <div class="card-header alert-success">
+    {% else %}
+        <div class="card-header alert-danger">
+    {% endif %}
+    <div class="row">
+        <div class="col col-sm-3">
+            {% if cscu.is_success == None %}
+                {{ cscu.contour }} / {{ cscu.server }}
+            {% else %}
+                <button class="btn btn-link btn-sm" type="button" data-toggle="collapse"
+                        data-target="#collapse{{ cscu.pk }}" aria-expanded="false"
+                        aria-controls="collapse{{ cscu.pk }}">
+                    {{ cscu.contour }} / {{ cscu.server }}
+                </button>
+            {% endif %}
+        </div>
+        <div class="col col-sm-2">{{ cscu.servercommand }}</div>
+        <div class="col col-sm-2">{{ cscu.user }} </div>
+        <div class="col col-sm-3">{{ cscu.start_time|date:'d.m.Y H:i:s' }}
+            - {{ cscu.end_time|date:'d.m.Y H:i:s' }}</div>
+        <div class="col col-sm-1">
+            {% if cscu.is_success == None %}
+                Выполняется
+            {% elif cscu.is_success %}
+                Успех
+            {% else %}
+                Ошибка
+            {% endif %}
+        </div>
+
+    </div>
+    </div>
+    <div id="collapse{{ cscu.pk }}" class="collapse" aria-labelledby="heading{{ cscu.pk }}"
+         data-parent="#accordionExample">
+        <div class="card-body">
+            {{ cscu.cmd_output|linebreaks }}
+        </div>
+    </div>
+    </div>

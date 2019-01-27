@@ -7,22 +7,52 @@
 {% endblock %}
 {% block content %}
     {% load verbose_names %}
-    <div class="row">
-            <div class="col col-sm-1">{% get_verbose_field_name object_list.0.contour "name" %}</div>
-            <div class="col col-sm-3">{% get_verbose_field_name object_list.0.server "name" %}</div>
-            <div class="col col-sm-2">{% get_verbose_field_name object_list.0.servercommand "name" %}</div>
-            <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "user" %}</div>
-            <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "start_time" %}</div>
-            <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "end_time" %}</div>
+    <div class="row font-small">
+        <div class="col col-sm-3">{% get_verbose_field_name object_list.0.contour "name" %}
+            / {% get_verbose_field_name object_list.0.server "name" %}</div>
+        <div class="col col-sm-2">{% get_verbose_field_name object_list.0.servercommand "name" %}</div>
+        <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "user" %}</div>
+        <div class="col col-sm-3">Время начала - время завершения</div>
+        <div class="col col-sm-1">Статус</div>
     </div>
-    <div class="row">
+
+    {% if cscu_in_progress %}
+        Задачи в очереди
+    {% endif %}
+
+
+    {% for cscu in cscu_in_progress %}
+        {% include "main/collapse_list.html" %}
+    {% endfor %}
+
+    {% if object_list %}
+        <br>Выполненные команды
+    {% endif %}
+
+    <div class="accordion" id="accordionExample">
         {% for cscu in object_list %}
-            <div class="col col-sm-1">{{ cscu.contour }}</div>
-            <div class="col col-sm-3">{{ cscu.server }}</div>
-            <div class="col col-sm-2">{{ cscu.servercommand }}</div>
-            <div class="col col-sm-2">{{ cscu.user }} </div>
-            <div class="col col-sm-2">{{ cscu.start_time|date:'d.m.Y H:i:s' }}</div>
-            <div class="col col-sm-2">{{ cscu.end_time|date:'d.m.Y H:i:s' }}</div>
+            {% include "main/collapse_list.html" %}
         {% endfor %}
     </div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination bottom">
+            <a class="page-link" href="?page=1">В начало</a>
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+                </li>
+            {% endif %}
+            <span class="current">
+          <li class="page-item">
+              <a class="page-link" href="#">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</a>
+          </li>
+      </span>
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+                </li>
+            {% endif %}
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">В конец</a>
+        </ul>
+    </nav>
 {% endblock %}

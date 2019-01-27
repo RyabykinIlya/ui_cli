@@ -58,13 +58,16 @@ class ServerListView(ListView):
 class CSCUListView(ListView):
     model = CSCU
     template_name = 'main/cscu_list.html'
-    paginate_by = 100
+    paginate_by = 50
 
-    def get_queryset(self):
-        return super().get_queryset().order_by('-start_time')
+    #def get_queryset(self):
+    #    return super().get_queryset().order_by('-start_time')
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        object_list = CSCU.objects.all()
+        context = super().get_context_data(
+            object_list=object_list.filter(locked_status=False).order_by('-start_time'), **kwargs)
+        context['cscu_in_progress'] = object_list.filter(locked_status=True).order_by('-start_time')
         return context
 
 

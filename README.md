@@ -1,4 +1,4 @@
-# ui_cli
+#ui_cli
 
 Django version 2.0.2 'final'
 
@@ -45,27 +45,8 @@ Initialize Demo:
 14. Доработать поле show_on_page для модели MenuItems
 15. Locked на экране выполнения комманд сделать через общий веб-сокет с каналами, чтобы в реальном времени отображался статус
 
-make regroup for server-command:
- cities = [
-    {'name': 'Mumbai', 'population': '19,000,000', 'country': 'India'},
-    {'name': 'Calcutta', 'population': '15,000,000', 'country': 'India'},
-    {'name': 'New York', 'population': '20,000,000', 'country': 'USA'},
-    {'name': 'Chicago', 'population': '7,000,000', 'country': 'USA'},
-    {'name': 'Tokyo', 'population': '33,000,000', 'country': 'Japan'},
-]
-
-...
-
-{% regroup cities by country as country_list %}
-
-<ul>
-    {% for country in country_list %}
-        <li>{{ country.grouper }}
-            <ul>
-            {% for city in country.list %}
-                <li>{{ city.name }}: {{ city.population }}</li>
-            {% endfor %}
-            </ul>
-        </li>
-    {% endfor %}
-</ul>
+#### IMPORTANT
+16. https://habr.com/ru/company/oleg-bunin/blog/433476
+17. Написать обработчики, которые делают запрос и вызывают методы класса хислоггер, их уже передавать на вход в rq_enqueue
+Передавать в очередь только ключи, делать поиск уже непосредственно в вызове функции (без объектов моделей)
+18. Сделать все обработчики задач для rq принимающими args и kwargs

@@ -1,30 +1,63 @@
-from datetime import datetime
-import os
-import django
+from __future__ import absolute_import, unicode_literals
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'ui_cli.settings'
-django.setup()
+from celery import shared_task
+from celery.result import AsyncResult
+from ui_cli.celery import app
 
-from main.models import CSCU
+from .ssh_modules import ssh_execute_command_for_server
+from .helpers import create_cscu_finish
 
+@shared_task
+def exec_cmd_task(user_pk, server_pk, command_pk, cscu_pk):
+    #return 'server: {}, command: {}, output: {}'.\
+    #        format(server_pk, command_pk, ssh_execute_command_for_server(server_pk, command_pk, user_pk))
+    try:
+        cmd_output, cmd_err = ssh_execute_command_for_server(server_pk, command_pk, user_pk)
+    except TimeoutError as e:
+        return {'cscu_pk': cscu_pk,
+                'error': e}
 
-class HistoryLogger():
-    def __init__(self, server, command, user, start_time):
-        self.cscu = CSCU.objects.create(contour=server.contour, server=server,
-                                        servercommand=command, user=user,
-                                        locked_status=True, start_time=start_time)
+    return {'cscu_pk': cscu_pk,
+            'cmd_output': cmd_output,
+            'cmd_err': cmd_err}
 
-    def save(self, force_update=False):
-        self.cscu.save(force_update=force_update)
+@app.task
+def error_handler(uuid):
+    result = AsyncResult(uuid)
+    exc = result.get(propagate=False)
+    print('Task {0} raised exception: {1!r}\n{2!r}'.format(
+          uuid, exc, result.traceback))
 
-    def unlock_command(self, end_time):
-        self.cscu.locked_status = False
-        self.cscu.end_time = end_time
-        self.save(force_update=True)
+@shared_task
+def finish_cmd_task(kargs):
+    # TOTO make finish time to get from prev command logs
+    '''
+    * - required
+    kargs content:
+     * kargs['cscu_pk'] - cscu_pk
+     * kargs['cmd_output'] or args['cmd_err'] - command output result
+       error - error before command execution
+    '''
 
+    if 'cmd_err' in kargs or 'cmd_output' in kargs:
+        if kargs['cmd_err']:
+            output = kargs['cmd_err']
+            is_success = False
+        elif kargs['cmd_output']:
+            output = kargs['cmd_output']
+            is_success = True
+        else:
+            output = ''
+            is_success = True
+    elif 'error' in kargs:
+        output = kargs['error']
+        is_success = False
+    else:
+        # should not occur
+        output = 'Unknown result, contact with coder. File tasks.py in main'
+        is_success = False
 
-def create(server, command, user):
-    cscu = CSCU.objects.create(contour=server.contour, server=server,
-                               servercommand=command, user=user,
-                               locked_status=True, start_time=datetime.now())
-    cscu.save()
+    create_cscu_finish(kargs['cscu_pk'], output, is_success)
+    return 'CSCU with pk {0} marked as finished with status {2} and output: {1}'\
+        .format(kargs['cscu_pk'], output, is_success)
+

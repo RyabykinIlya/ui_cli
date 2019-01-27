@@ -1,8 +1,11 @@
 import socket
 import paramiko
 
-# !!! Do not import any from .models here,
-# because apps.py uses check_socket_openned method during initial start
+
+# !!! Do not import any module from this app
+# it can cause "django.core.exceptions.AppRegistryNotReady: Apps aren't loaded yet" error
+# because apps.py use check_socket_openned method during initial start
+#         settings.py use get_any_available method
 
 def get_any_available(host, ports, timeout=0.5):
     '''
@@ -14,6 +17,7 @@ def get_any_available(host, ports, timeout=0.5):
     for port in ports:
         if check_socket_openned(host, port):
             return int(port)
+
 
 def check_socket_openned(host, port, timeout=0.5):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,12 +75,17 @@ def ssh_execute_command(host, user, password, port, command):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname=host, username=user, password=password, port=port)
     stdin, stdout, stderr = client.exec_command(command)
-    data = stdout.read().decode("utf-8") + stderr.read().decode("utf-8")
+    #data = stdout.read().decode("utf-8") + stderr.read().decode("utf-8")
+    data = (stdout.read().decode("utf-8"), stderr.read().decode("utf-8"))
     client.close()
     return data
 
 
-def ssh_execute_command_for_server(server_pk, command):
+def ssh_execute_command_for_server(server_pk, command_pk, user_pk):
     from .models import Server
+    from .helpers import get_command_for_server
+
+    command = get_command_for_server(user_pk, server_pk, command_pk).command
+
     server = Server.objects.get(pk=server_pk)
     return ssh_execute_command(server.ip_address, server.user, server.password, server.ssh_port, command)

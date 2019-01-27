@@ -65,7 +65,7 @@ class Server(ModelWithUser, RestrictedModel, models.Model):
     ssh_port = models.IntegerField(verbose_name='SSH порт')
     user = models.CharField(max_length=30, verbose_name='Имя пользователя')
     password = models.CharField(max_length=30, verbose_name='Пароль для подключения')
-    contour = models.ForeignKey(Contour, related_name='severs', on_delete=models.CASCADE, verbose_name='Контур')
+    contour = models.ForeignKey(Contour, related_name='server', on_delete=models.CASCADE, verbose_name='Контур')
 
     def get_absolute_url(self):
         return '/server/%i/' % self.id
@@ -76,7 +76,8 @@ class Server(ModelWithUser, RestrictedModel, models.Model):
     name_ipaddress.short_description = 'Название машины: IP'
 
     def __str__(self):
-        return '{}:{}'.format(str(self.name), str(self.ip_address))
+        # return '{}:{}'.format(str(self.name), str(self.ip_address))
+        return str(self.name)
 
     class Meta:
         verbose_name = 'Сервер'
@@ -153,3 +154,5 @@ class CSCU(models.Model):
     locked_status = models.BooleanField(verbose_name='Выполняется другим пользователем', default=False)
     start_time = models.DateTimeField(verbose_name='Время начала выполнения', default=datetime.now())
     end_time = models.DateTimeField(verbose_name='Время завершения выполнения', null=True)
+    cmd_output = models.TextField(verbose_name='Результат выполнения команды', null=True)
+    is_success = models.NullBooleanField(verbose_name='Статус выполнения', null=True)

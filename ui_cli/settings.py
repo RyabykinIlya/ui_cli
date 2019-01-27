@@ -12,8 +12,23 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
-# TODO for dev using only
-from main.ssh_modules import get_any_available
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+if DEBUG:
+    # for development purposes
+    # created as windows solution only, which can not use celery 4* and etc.
+
+    from main.ssh_modules import get_any_available
+    ports_to_connect = {
+        'db': get_any_available('127.0.0.1', [55432, 5432]),
+        'rq': get_any_available('127.0.0.1', [56379, 6379])
+    }
+else:
+    ports_to_connect = {
+        'db': 5432,
+        'rq': 6379
+    }
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,14 +39,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'rnc!h#q5^aov3wk5j1j_-h86yu4xw54rbo4eoe=m$r)lxux=k)'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = []
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django_celery_results',
     'channels',
     'main',
     'django.contrib.admin',
@@ -87,7 +100,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'HOST': '127.0.0.1',
-        'PORT': get_any_available('127.0.0.1', [55432, 5432]),
+        'PORT': ports_to_connect['db'],
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'NAME': 'postgres',
@@ -115,13 +128,17 @@ AUTH_PASSWORD_VALIDATORS = [
 RQ_QUEUES = {
     'default': {
         'HOST': 'localhost',
-        'PORT': get_any_available('127.0.0.1', [56379, 6379]),
+        'PORT': ports_to_connect['rq'],
         'DB': 0,
         #'PASSWORD': 'some-password',
         'DEFAULT_TIMEOUT': 360,
     }
 }
 RQ_SHOW_ADMIN_LINK = True
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'redis://localhost:' + str(ports_to_connect['rq']) + '/0'
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 

@@ -7,6 +7,7 @@
 {% endblock %}
 {% block content %}
     <div class="alert alert-warning d-none" role="alert" id="warning-text"></div>
+    <div class="alert alert-info d-none" role="alert" id="info-text"></div>
     <div class="container-fluid">
         <div class="row">
             <div class="input-group-sm col-md-6 mb-3 p-3" id="delay-block">
@@ -76,6 +77,24 @@
         // 'use strict';
         var parameters = {};
 
+        function trigger_msg(type, message) {
+            // function to show warning message-block
+            // pass message arg to show block
+
+            if (type == 'info')
+                msg_block = $('#info-text');
+            else
+                msg_block = $('#warning-text');
+
+            if (message !== undefined) {
+                msg_block.html(message);
+                msg_block.removeClass('d-none');
+                $("html, body").animate({ scrollTop: msg_block.offset().top }, 200);
+            } else {
+                msg_block.addClass('d-none');
+            }
+        }
+
         function refresh_result_message() {
             // function aggregates data from controls to result message
 
@@ -128,13 +147,24 @@
                     return values;
                 }
 
+                function get_pk(control, key) {
+                    // for multiple values has been choosen
+                    var values = '';
+                    for (var j = 0; j < control.length; j++) {
+                        if (j > 0)
+                            values += ', ';
+                            values += $(control[j]).attr(key);
+                    }
+                    return values;
+                }
+
                 var control = $(choosen_params).filter(function () {
                     return ($(this).attr('data-param') == param_name) === true;
                 });
 
                 if (control.length > 0) {
                     parameters[param_name] = {"value": get_value(control),
-                                              "pk": control.attr("data-" + param_name)};
+                                              "pk": get_pk(control, ("data-" + param_name))};
                     $('#execute').removeClass('disabled');
                     check_concurrent();
                 } else {
@@ -236,8 +266,12 @@
         };
         commandSocket.onmessage = function (e) {
             var data = JSON.parse(e.data);
-            construct_servers(data['servers']);
-            refresh_result_message();
+            if (Object.keys(data)[0] == 'error' || Object.keys(data)[0] == 'info') {
+                trigger_msg(Object.keys(data)[0], data[Object.keys(data)[0]])
+            } else {
+                construct_servers(data['servers']);
+                refresh_result_message();
+            }
             // sshOutput.innerText += (message.trim() + '\n');
         };
 
@@ -269,19 +303,6 @@
             });
         }
 
-        warning_block = $('#warning-text');
-        function trigger_warning(message) {
-            // function to show warning message-block
-            // pass message arg to show block
-
-            if (message !== undefined) {
-                warning_block.text(message);
-                warning_block.removeClass('d-none');
-            } else {
-                warning_block.addClass('d-none');
-            }
-        }
-
         function manage_shadow(target) {
             // function to control shadow on time-picker and delay-timer blocks
             // pass changed control as target
@@ -298,10 +319,10 @@
             // add concurrent (red) shadow to both blocks
             if (time_blocks.filter(".block-choosen").length == time_blocks.length) {
                 time_blocks.addClass('concurrent-param');
-                trigger_warning('Удалите один из параметров запуска выделенный красным, нажав на крестик.')
+                trigger_msg('error', 'Удалите один из параметров запуска выделенный красным, нажав на крестик.')
             } else {
                 time_blocks.removeClass('concurrent-param');
-                trigger_warning();
+                trigger_msg();
             }
         }
 
