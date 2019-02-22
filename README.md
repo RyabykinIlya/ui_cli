@@ -3,7 +3,9 @@
 Django version 2.0.2 'final'
 
 
-System to work with *nix-like systems, execute commands through UI-interface.
+Service to work with *nix-like systems, execute commands through UI-interface.
+
+Still in dev state.
 
 Data model: {Permission:(User(s), Contour(s), Server(s), Command(s))}
 
