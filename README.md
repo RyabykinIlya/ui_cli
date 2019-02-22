@@ -15,10 +15,16 @@ Initialize Demo:
 - python manage.py loaddata User MenuItems Contour Server ServerCommand
 - login as admin/qwerty$4
 
-![Alt text](ui_cli/examples/command_execute.png?raw=true "Title")
-![Alt text](ui_cli/examples/history.png?raw=true "Title")
-![Alt text](ui_cli/examples/locked_command.png?raw=true "Title")
-![Alt text](ui_cli/examples/params_modal.png?raw=true "Title")
+#EXAMPLES
+
+Command execute window:
+![Command execute window](/examples/command_execute.png?raw=true "Command execute window")
+Command executions history:
+![Command executions histsory](/examples/history.png?raw=true "Command executions histsory")
+Locked command:
+![Locked command](/examples/locked_command.png?raw=true "Locked command")
+Modal window with dynamic params:
+![Modal window with dynamic params](/examples/params_modal.png?raw=true "Modal window with dynamic params")
 
 #### **TODO:**
 
