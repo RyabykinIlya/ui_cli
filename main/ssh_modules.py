@@ -81,11 +81,14 @@ def ssh_execute_command(host, user, password, port, command):
     return data
 
 
-def ssh_execute_command_for_server(server_pk, command_pk, user_pk):
+def ssh_execute_command_for_server(server_pk, command_pk, user_pk, add_args=None):
     from .models import Server
     from .helpers import get_command_for_server
 
-    command = get_command_for_server(user_pk, server_pk, command_pk).command
+    command_text = get_command_for_server(user_pk, server_pk, command_pk, add_args)
 
     server = Server.objects.get(pk=server_pk)
-    return ssh_execute_command(server.ip_address, server.user, server.password, server.ssh_port, command)
+    output = ssh_execute_command(server.ip_address, server.user, server.password, server.ssh_port, command_text)
+    output = output + (command_text,)
+    return output
+

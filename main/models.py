@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.db.models.query_utils import Q
 from datetime import datetime
 
+from django_celery_results.models import TaskResult
+
+
 class ModelWithUser(models.Model):
     last_upd_by = models.ForeignKey(User, verbose_name='Кем изменено', on_delete=models.SET_NULL,
                                     blank=True, null=True)
@@ -24,6 +27,7 @@ class RestrictedQuerySet(models.query.QuerySet):
 
 class RestrictedManager(models.Manager):
     ' custom manager to override QuerySet '
+
     def get(self, *args, **kwargs):
         # do not restrict for superuser
         if 'permission__user' in kwargs:
@@ -88,12 +92,18 @@ class Server(ModelWithUser, RestrictedModel, models.Model):
 class ServerCommand(ModelWithUser, RestrictedModel, models.Model):
     name = models.CharField(max_length=40, verbose_name='Название команды')
     command = models.TextField(max_length=2000, verbose_name='Команда для выполнения', help_text='''
-    Введите команду для выполнения на сервере<br>
-    Вы можете ввести custom_command для того, чтобы пользователь сам ввёл команду''')
+                Введите команду для выполнения на сервере<br>
+                Вы можете ввести custom_command для того, чтобы пользователь сам ввёл команду''')
     description = models.TextField(verbose_name='Описание команды', blank=True, null=True)
     average_execution_time = models.FloatField(verbose_name='Среднее время выполнения команды', default=1.0)
     server = models.ManyToManyField(Server, related_name='commands', verbose_name='Сервер')
     lock_enable = models.BooleanField(verbose_name='Запретить выполнять параллельно', default=False)
+    with_parameters = models.BooleanField(verbose_name='Возможность передать параметры в команду', default=False,
+                                          help_text='''
+                В поле "Команда для выполнения" динамические параметры должны быть оформлены следующим образом:
+                <br>execute command %PARAM_NAME|Название_параметра%,
+                <br>где PARAM_NAME - динамический параметр, который пользователь введёт при выполнении,
+                    <br>Название_параметра - название поля, в которое польхователь введёт параметр.''')
 
     def __str__(self):
         return str(self.name)
@@ -141,6 +151,7 @@ class Permission(ModelWithUser, models.Model):
         verbose_name = 'Полномочие'
         verbose_name_plural = 'Полномочия'
 
+
 class CSCU(models.Model):
     """
     Contour-Server-Command-User
@@ -151,9 +162,11 @@ class CSCU(models.Model):
     contour = models.ForeignKey(Contour, verbose_name='Контур', on_delete=models.SET_NULL, null=True)
     server = models.ForeignKey(Server, verbose_name='Сервер', on_delete=models.SET_NULL, null=True)
     servercommand = models.ForeignKey(ServerCommand, verbose_name='Команда', on_delete=models.SET_NULL, null=True)
+    parameters = models.TextField(verbose_name='Параметры запуска', null=True, blank=True)
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.SET_NULL, null=True)
     locked_status = models.BooleanField(verbose_name='Выполняется другим пользователем', default=False)
     start_time = models.DateTimeField(verbose_name='Время начала выполнения', default=datetime.now())
-    end_time = models.DateTimeField(verbose_name='Время завершения выполнения', null=True)
-    cmd_output = models.TextField(verbose_name='Результат выполнения команды', null=True)
+    end_time = models.DateTimeField(verbose_name='Время завершения выполнения', null=True, blank=True)
+    cmd_output = models.TextField(verbose_name='Результат выполнения команды', null=True, blank=True)
     is_success = models.NullBooleanField(verbose_name='Статус выполнения', null=True)
+    celery_task_id = models.CharField(max_length=255, verbose_name='Задача celery', null=True, blank=True)

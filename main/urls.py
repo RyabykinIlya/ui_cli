@@ -17,7 +17,7 @@ from django.urls import path, include
 
 from . import views
 from .consumers import \
-    SyncCommandsConsumer, AsyncCommandsConsumer, SyncCommandServerConsumer
+    SyncCommandsConsumer, SyncCommandServerConsumer, SyncCSCUConsumer # AsyncCommandsConsumer
 
 urlpatterns = [
     path('', views.main_view, name='main'),
@@ -27,11 +27,12 @@ urlpatterns = [
     path('commands/', views.ServerCommandListView.as_view(), name='servercommand-list'),
 ]
 
-urlpatterns += [
-    path('django-rq/', include('django_rq.urls'))
-]
+# urlpatterns += [
+#     path('django-rq/', include('django_rq.urls'))
+# ]
 
 websocket_urlpatterns = [
     path('ws/server/<int:pk>/', SyncCommandsConsumer),
     path('ws/commands/', SyncCommandServerConsumer),
+    path('ws/cscu-list/', SyncCSCUConsumer),
 ]

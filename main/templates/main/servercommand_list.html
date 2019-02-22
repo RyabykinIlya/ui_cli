@@ -9,73 +9,161 @@
     <div class="alert alert-warning d-none" role="alert" id="warning-text"></div>
     <div class="alert alert-info d-none" role="alert" id="info-text"></div>
     <div class="container-fluid">
-        <div class="row">
-            <div class="input-group-sm col-md-6 mb-3 p-3" id="delay-block">
-                <div class="mb-3">
-                    <button type="button" class="close cancel-choose" id="range-to-default"
-                            data-cancel="#delayRange,#delayAmount" for="delay-block">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <label>Отложенный запуск:&nbsp;через</label>
-                    <output name="delayAmount" id="delayAmount"
-                            for="delayRange" value="0" class="delayed-start">0
-                    </output>
-                    минут
-                </div>
-                <input type="range" class="custom-range" name="delayRange" min="0"
-                       max="60" step="1" value="0" id="delayRange" data-param="delayTime"
-                       oninput="delayAmount.value=delayRange.value">
-
+    <div class="row">
+        <div class="input-group-sm col-md-6 mb-3 p-3" id="delay-block">
+            <div class="mb-3">
+                <button type="button" class="close cancel-choose" id="range-to-default"
+                        data-cancel="#delayRange,#delayAmount" for="delay-block">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <label>Отложенный запуск:&nbsp;через</label>
+                <output name="delayAmount" id="delayAmount"
+                        for="delayRange" value="0" class="delayed-start">0
+                </output>
+                минут
             </div>
-            <div class="input-group-sm col-md-6 mb-3 p-3" id="start-block">
-                <div class="mb-3">
-                    <button type="button" class="close cancel-choose" id="time-to-default"
-                            data-cancel="#startTime" for="start-block">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <label>Запуск ко времени</label>
-                </div>
-                <input class="form-control" type="time" id="startTime" data-param="startTime">
-            </div>
+            <input type="range" class="custom-range" name="delayRange" min="0"
+                   max="60" step="1" value="0" id="delayRange" data-param="delayTime"
+                   oninput="delayAmount.value=delayRange.value">
 
         </div>
+        <div class="input-group-sm col-md-6 mb-3 p-3" id="start-block">
+            <div class="mb-3">
+                <button type="button" class="close cancel-choose" id="time-to-default"
+                        data-cancel="#startTime" for="start-block">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <label>Запуск ко времени</label>
+            </div>
+            <input class="form-control" type="time" id="startTime" data-param="startTime">
+        </div>
 
+    </div>
+    <div class="container-fluid">
         <div class="row">
-            <div class="list-group col-md-12" id="command-list">
+            <div class="list-group col-sm-12 fixme" id="command-list">
                 Выберите комманду
                 {% for command in object_list %}
-                    <a class="list-group-item list-group-item-action flex-column align-items-start command"
-                       id="command{{ command.id }}" data-param="command" value="{{ command.name }}"
-                        data-command="{{ command.id }}">
-                        <div class="d-flex w-100 justify-content-between command-name">
-                            <h5 class="mb-1">{{ command.name }}</h5>
-                            <small>Locked: <span id="command{{ command.id }}-locked">False</span></small>
-                        </div>
-                        <p class="mb-1">{{ command.description }}</p>
-                        <!--<small>Donec id elit non mi porta.</small>-->
-                    </a>
+                    <div class="row">
+                    {% if command.ad_params %}
+                        <div class="col-cmd col-cmd-11">
+                        <a class="list-group-item param list-group-item-action flex-column align-items-start command"
+                           id="command{{ command.id }}" data-param="command"
+                           value="{{ command.name }}"
+                           data-command="{{ command.id }}">
+                    {% else %}
+                        <div class="col-cmd col-cmd-12">
+                        <a class="list-group-item list-group-item-action flex-column align-items-start command"
+                           id="command{{ command.id }}" data-param="command"
+                           value="{{ command.name }}"
+                           data-command="{{ command.id }}">
+                    {% endif %}
+                <div class="d-flex w-100 justify-content-between command-name">
+                    <h6 class="mb-1">{{ command.name }}</h6>
+                    {% if command.locked_on %}
+                        <small class="locked-status" data-toggle="tooltip" data-placement="bottom"
+                               data-html="true"
+                               title="<small>Команда выполняется в данных момент</small>">
+                    {% else %}
+                        <small class="locked-status d-none" data-toggle="tooltip"
+                               data-placement="bottom"
+                               data-html="true"
+                               title="<small>Команда выполняется в данных момент</small>">
+                    {% endif %}
+                    Locked on servers:
+                    <span id="command{{ command.id }}-locked"
+                          class="badge badge-warning font-medium">{{ command.locked_on }}</span>
+                    </small>
+                </div>
+                <p class="mb-1">{{ command.description }}</p>
+                </a>
+                </div>
+                {% if command.ad_params %}
+                    <div class="col-cmd col-cmd-1 params-block params-pad">
+                        <a href="#" data-toggle="modal" data-target="#Modal{{ command.id }}" class="disabled">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                 width="20pt"
+                                 height="20pt" viewBox="0 0 20 20" version="1.1" class="params-svg">
+                                <g id="surface1">
+                                    <path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;"
+                                          d="M 18.46875 12.570312 C 18.191406 12.570312 17.96875 12.792969 17.96875 13.070312 L 17.96875 17.492188 C 17.96875 18.320312 17.300781 18.988281 16.476562 18.988281 L 2.492188 18.988281 C 1.667969 18.988281 0.996094 18.320312 0.996094 17.492188 L 0.996094 4.507812 C 0.996094 3.679688 1.667969 3.011719 2.492188 3.011719 L 6.917969 3.011719 C 7.191406 3.011719 7.414062 2.789062 7.414062 2.511719 C 7.414062 2.238281 7.191406 2.015625 6.917969 2.015625 L 2.492188 2.015625 C 1.117188 2.015625 0 3.132812 0 4.507812 L 0 17.492188 C 0 18.867188 1.117188 19.984375 2.492188 19.984375 L 16.476562 19.984375 C 17.851562 19.984375 18.964844 18.867188 18.964844 17.492188 L 18.964844 13.070312 C 18.964844 12.792969 18.742188 12.570312 18.46875 12.570312 Z M 18.46875 12.570312 "/>
+                                    <path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;"
+                                          d="M 18.769531 0.734375 C 17.894531 -0.144531 16.472656 -0.144531 15.597656 0.734375 L 6.707031 9.625 C 6.644531 9.683594 6.601562 9.761719 6.578125 9.84375 L 5.410156 14.0625 C 5.363281 14.238281 5.410156 14.421875 5.539062 14.550781 C 5.664062 14.675781 5.851562 14.726562 6.023438 14.675781 L 10.242188 13.507812 C 10.328125 13.484375 10.402344 13.441406 10.464844 13.378906 L 19.355469 4.488281 C 20.230469 3.613281 20.230469 2.195312 19.355469 1.316406 Z M 7.792969 9.949219 L 15.070312 2.671875 L 17.417969 5.015625 L 10.140625 12.292969 Z M 7.324219 10.886719 L 9.199219 12.761719 L 6.605469 13.480469 Z M 18.648438 3.785156 L 18.121094 4.3125 L 15.773438 1.964844 L 16.304688 1.4375 C 16.789062 0.949219 17.578125 0.949219 18.066406 1.4375 L 18.648438 2.023438 C 19.136719 2.507812 19.136719 3.296875 18.648438 3.785156 Z M 18.648438 3.785156 "/>
+                                </g>
+                            </svg>
+
+                        </a>
+                    </div>
+                {% endif %}
+                </div>
+                    <span class="d-none">{{ command.command }}</span>
                 {% endfor %}
+                </div>
+                <div class="col-sm-6 d-none pt-2 fixme" id="servers-block">
+                    Выберите сервера для выполнения<br>
+                    <div id="server-list"></div>
+                </div>
             </div>
-            <div class="col-md-6 d-none" id="servers-block">
-                Выберите сервера для выполнения<br>
-                <div id="server-list"></div>
-            </div>
-        </div>
-        <div class="row mt-2">
-            <div class="d-none" id="result">
-                <button type="button" class="btn btn-link btn-sm" id="execute">Запустить команду</button>
-                <span id="result-message">
+            <div class="row mt-2">
+                <div class="d-none" id="result">
+                    <a href="javascript:void(null);" class="pr-1" id="execute">Запустить команду</a>
+                    <span id="result-message">
                 <span id="command-command" class="d-none"><kbd></kbd></span>
+                        <!-- <span id="command-additionalInfo" class="d-none"><kbd></kbd></span> -->
                 <span id="command-delayTime" class="d-none">через <kbd></kbd> минут</span>
                 <span id="command-startTime" class="d-none">в <kbd></kbd></span>
                 <span id="command-server" class="d-none">на сервере(ах) <kbd></kbd></span>
             </span>
+                </div>
             </div>
         </div>
     </div>
+
+    {% for command in object_list %}
+        {% if command.ad_params %}
+            <div class="modal fade" id="Modal{{ command.id }}" tabindex="-1" role="dialog"
+                 aria-labelledby="Modal{{ command.id }}Label" aria-hidden="true" data-block="params-modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title" id="Modal{{ command.id }}Label">Заполните параметры</h6>
+                            <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button> -->
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    {% for param in command.ad_params %}
+                                        <label for="{{ param.0 }}{{ command.id }}"
+                                               class="col-form-label">{{ param.1 }}:</label>
+                                        <input type="text" class="form-control form-control-sm"
+                                               id="{{ param.0 }}{{ command.id }}" data-param="additionalInfo"
+                                               data-additionalInfo="{{ param.0 }}">
+                                    {% endfor %}
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <!--<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Закрыть</button>-->
+                            <button type="button" class="btn btn-sm btn-primary" data-action="apply-args"
+                                    data-dismiss="modal">Применить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block additional_script %}
+
     <script>
         // 'use strict';
         var parameters = {};
+
+        $('.locked-status').tooltip({boundary: 'window'});
 
         function trigger_msg(type, message) {
             // function to show warning message-block
@@ -89,13 +177,13 @@
             if (message !== undefined) {
                 msg_block.html(message);
                 msg_block.removeClass('d-none');
-                $("html, body").animate({ scrollTop: msg_block.offset().top }, 200);
+                $("html, body").animate({scrollTop: msg_block.offset().top}, 200);
             } else {
                 msg_block.addClass('d-none');
             }
         }
 
-        function refresh_result_message() {
+        function refresh_result_message(reset) {
             // function aggregates data from controls to result message
 
             function append_param(param_name) {
@@ -132,39 +220,65 @@
 
                 function get_value(control) {
                     // for multiple values has been choosen
-                    var values = '';
+                    var values = [];
                     for (var j = 0; j < control.length; j++) {
-                        if (j > 0)
-                            values += ', ';
 
                         // if control have not val attribute (input type = range/time, etc.)
                         if ($(control[j]).val() == '')
-                            values += $(control[j]).attr('value');
+                            values.push($(control[j]).attr('value'));
                         else
-                            values += $(control[j]).val();
+                            values.push($(control[j]).val());
                     }
 
                     return values;
                 }
+
+                /*function get_value(control) {
+                 // for multiple values has been choosen
+                 var values = '';
+                 for (var j = 0; j < control.length; j++) {
+                 if (j > 0)
+                 values += ', ';
+
+                 // if control have not val attribute (input type = range/time, etc.)
+                 if ($(control[j]).val() == '')
+                 values += $(control[j]).attr('value');
+                 else
+                 values += $(control[j]).val();
+                 }
+
+                 return values;
+                 }*/
 
                 function get_pk(control, key) {
                     // for multiple values has been choosen
-                    var values = '';
+                    var values = [];
                     for (var j = 0; j < control.length; j++) {
-                        if (j > 0)
-                            values += ', ';
-                            values += $(control[j]).attr(key);
+                        values.push($(control[j]).attr(key));
                     }
                     return values;
                 }
+
+                /*function get_pk(control, key) {
+                 // for multiple values has been choosen
+                 var values = '';
+                 for (var j = 0; j < control.length; j++) {
+                 if (j > 0)
+                 values += ', ';
+                 values += $(control[j]).attr(key);
+                 }
+                 return values;
+                 }*/
 
                 var control = $(choosen_params).filter(function () {
                     return ($(this).attr('data-param') == param_name) === true;
                 });
 
                 if (control.length > 0) {
-                    parameters[param_name] = {"value": get_value(control),
-                                              "pk": get_pk(control, ("data-" + param_name))};
+                    parameters[param_name] = {
+                        "value": get_value(control),
+                        "pk": get_pk(control, ("data-" + param_name))
+                    };
                     $('#execute').removeClass('disabled');
                     check_concurrent();
                 } else {
@@ -172,9 +286,9 @@
                 }
             }
 
-            var choosen_params = document.querySelectorAll('[data-choosen="active"]'),
+            var choosen_params = $('[data-choosen="active"]'),
                 // must define param name here to use
-                available_params = ['command', 'server', 'delayTime', 'startTime'],
+                available_params = ['command', 'server', 'delayTime', 'startTime', 'additionalInfo'],
                 concurrent_params = ['delayTime', 'startTime'];
 
             for (var i in available_params) {
@@ -217,7 +331,7 @@
                 });
             };
 
-            function form_choise_block(server_name, server_pk) {
+            function struct_choise_servers_block(server_name, server_pk) {
                 // returns choise structured block for server
 
                 return '<div class="col-auto my-1">' +
@@ -244,8 +358,12 @@
                 for (var contour in dict[key]) {
                     $('#server-list').append(contour);
                     for (var server in dict[key][contour])
-                        $('#server-list').append(form_choise_block(dict[key][contour][server]['server_name'],
-                            dict[key][contour][server]['server_pk']));
+                        $('#server-list').append(
+                            struct_choise_servers_block(
+                                dict[key][contour][server]['server_name'],
+                                dict[key][contour][server]['server_pk']
+                            )
+                        );
                 }
             }
 
@@ -254,39 +372,90 @@
                 $('#servers-block').removeClass('d-none');
             }, animate_delay);
 
-            set_listeners_on_servers_check_boxes()
+            set_listeners_on_servers_check_boxes();
         }
-        
-        function manage_locks(pk, locked) {
-            link = $("a[data-command='" + pk + "']");
-            locked_text = $('#command' + pk + '-locked');
-            if (locked == true){
-                link.addClass('disabled');
-                locked_text.text('True');
+
+        function manage_locked_servers(servers) {
+            // reset all tooltips first
+            var servers_checkboxes = $('[data-param="server"]');
+            servers_checkboxes.parent().tooltip('dispose');
+            servers_checkboxes.removeAttr('disabled');
+            servers_checkboxes.attr('data-choosen', '');
+
+            // set disabled for each server checkbox that is choosen command executing on
+            for (let server of servers) {
+                var checkbox_el = $('[value="' + server + '"]');
+                if (checkbox_el) {
+                    $('[value="' + server + '"]').attr("disabled", "");
+
+                    // also set click listener to tell user if server disabled
+                    checkbox_el.parent('div')
+                        .attr('data-toggle', 'tooltip')
+                        .attr('data-placement', 'left')
+                        .attr('data-html', 'true')
+                        .tooltip({
+                            'trigger': 'hover',
+                            'title': '<small>Выбранная команда выполняется на этом сервере</small>'
+                        });
+                    checkbox_el.prop("checked", false);
+                }
+            }
+        }
+
+        function manage_locks(pk, locked_on) {
+            var link = $("a[data-command='" + pk + "']"),
+                locked_text = $('#command' + pk + '-locked');
+            if (locked_on) {
+                locked_text.text(locked_on);
+                link.find('.locked-status').removeClass('d-none');
             } else {
-                link.removeClass('disabled');
-                locked_text.text('False');
+                locked_text.text('');
+                link.find('.locked-status').addClass('d-none');
             }
 
         }
 
-        var commandSocket = new WebSocket(
+        var commandSocket = new ReconnectingWebSocket(
             'ws://' + window.location.host +
             '/ws/commands/');
 
         commandSocket.onopen = function () {
             console.log("Connection successful.");
         };
+
         commandSocket.onmessage = function (e) {
-            var data = JSON.parse(e.data);
-            if (Object.keys(data)[0] == 'error' || Object.keys(data)[0] == 'info') {
-                trigger_msg(Object.keys(data)[0], data[Object.keys(data)[0]])
-            } else if (Object.keys(data)[0] == 'lock') {
+            var data = JSON.parse(e.data),
+                fst_key = Object.keys(data)[0];
+
+            // alert block display
+            if (fst_key == 'error' || fst_key == 'info') {
+                trigger_msg(fst_key, data[fst_key])
+
+                // if some command executed in real time
+            } else if (fst_key == 'lock') {
                 var lock_info = JSON.parse(data['lock']);
-                manage_locks(lock_info['command_pk'], lock_info['locked'])
-            } else {
+
+                manage_locks(lock_info['command_pk'], lock_info['locked_on']);
+
+                var locked_on = $('[data-param="command"][data-choosen="active"]')
+                    .find('.locked-status').children().text();
+
+                manage_locked_servers(locked_on.split(', '));
+                refresh_result_message();
+
+                // when user choose some command and server returns servers dictionary
+            } else if (fst_key == 'servers') {
                 construct_servers(data['servers']);
                 refresh_result_message();
+
+                var locked_on = $('[data-param="command"][data-choosen="active"]')
+                    .find('.locked-status').children().text();
+
+                manage_locked_servers(locked_on.split(', '));
+
+                // should not occur
+            } else {
+                console.log('unexpected key');
             }
             // sshOutput.innerText += (message.trim() + '\n');
         };
@@ -307,6 +476,19 @@
 
                 // add active to clicked list elem
                 $(this).addClass('active');
+
+                // change param block size
+                $('.params-block').removeClass('bg-yellow').removeClass('bg-solight-blue').addClass('small-pad');
+
+                // add background-color
+                $(this).parent().next('.params-block').addClass('bg-yellow');
+
+                // manipulate disabled state
+                $('.params-block a').addClass('disabled');
+                $(this).parent().next('.params-block').find('a').removeClass('disabled');
+
+                // clean up choosen additional params
+                $('[data-param="additionalInfo"]').attr('data-choosen', '');
 
                 // set data-choosen attribute to active (needed to choose params for execution)
                 // clean up others first
@@ -365,11 +547,49 @@
             refresh_result_message();
         });
 
-        $("#execute").click(function () {
+        $('#execute').click(function () {
             commandSocket.send(JSON.stringify({
-                    'execute': true,
-                    'parameters': parameters
-                }));
+                'execute': true,
+                'parameters': parameters
+            }));
         });
+
+        function checkValue(value) {
+            return value !== "" && value !== undefined;
+        }
+
+        $('[data-action="apply-args"]').click(function () {
+            var fields = [],
+                command_id = $(this).parents('[role="dialog"]').attr('id').replace(/^\D+/g, ''),
+                input_elems = $(this).parent().parent().find('div.modal-body form .form-group input');
+
+            // get values from each field in the form
+            input_elems.each(function () {
+                fields.push($(this).val());
+            });
+
+            // добавить в input_elems data- active
+            // $('[data-param="additionalInfo"]').attr('data-choosen', '');
+            input_elems.attr('data-choosen', 'active');
+
+            // check if all fields were filled
+            if (fields.every(checkValue)) {
+                $('a[data-target="#Modal' + command_id + '"]').parent('.params-block')
+                    .removeClass('bg-yellow').addClass('bg-solight-blue');
+            } else {
+                $('a[data-target="#Modal' + command_id + '"]').parent('.params-block')
+                    .removeClass('bg-solight-blue').addClass('bg-yellow');
+            }
+
+            refresh_result_message();
+        });
+
+        $('[data-block="params-modal"]').on('keypress', function (event) {
+            if (event.which === 13) {
+                event.preventDefault();
+                $(this).find('button[data-action="apply-args"]').trigger('click');
+            }
+        });
+
     </script>
 {% endblock %}

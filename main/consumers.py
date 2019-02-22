@@ -3,12 +3,13 @@ from datetime import datetime
 
 from asgiref.sync import sync_to_async, async_to_sync
 from paramiko.ssh_exception import SSHException
+# from channels.generic.websocket import WebsocketConsumer
 from itertools import groupby
 import django_rq
 
 from . import models
-from .classes_override import WebsocketConsumerCustom, AsyncWebsocketConsumerCustom
-from .helpers import get_user, get_command_for_server, HistoryLogger
+from .classes_override import WebsocketConsumerCustom  # , AsyncWebsocketConsumerCustom
+from .helpers import get_user, get_command_for_server, unpack_list, HistoryLogger
 from .ssh_modules import SshCommandExecuter
 from .models import Server, CSCU, Contour
 from .pretasks import exec_cmd
@@ -24,17 +25,13 @@ class SyncCommandsConsumer(WebsocketConsumerCustom):
             self.executer = SshCommandExecuter(self.server.ip_address, self.server.user,
                                                self.server.password, self.server.ssh_port)
         except SSHException:
-            self.send(text_data=json.dumps({
-                'message': str('Can not connect to this server.')
-            }))
+            self.send_msg('message', 'Can not connect to this server.')
             self.disconnect()
 
     def disconnect(self, close_code='0'):
         if hasattr(self, 'executer'):
             self.executer.disconnect()
-        self.send(text_data=json.dumps({
-            'message': str('Connection lost, reload this page to continue.')
-        }))
+        self.send_msg('message', 'Connection lost, reload this page to continue.')
         print('Web-socket connection closed with code {}'.format(close_code))
         self.close()
 
@@ -43,23 +40,34 @@ class SyncCommandsConsumer(WebsocketConsumerCustom):
         if 'command' in text_data_json:
             self.executer.execute(text_data_json['command'])
         else:
-            command_obj = get_command_for_server(get_user(self).pk, self.server_pk, text_data_json['command_pk'])
-            self.executer.execute(command_obj.command)
+            command_text = get_command_for_server(get_user(self).pk, self.server_pk, text_data_json['command_pk'])
+            self.executer.execute(command_text)
         # TODO for manual command ?
-        self.cscu_hist = HistoryLogger(self.server, command_obj, get_user(self), datetime.now())
+        # self.cscu_hist = HistoryLogger(self.server, command_obj, get_user(self), datetime.now())
+
+        # TODO Если выполнять команды по очереди быстро, то генератор не успевает завершить выполнение
+        # из-за этого команды которые хочу выполнить выполняются со второго раза
+
         for message in self.executer.gen:
-            self.send(text_data=json.dumps({
-                # 'std': self.executer.std,
-                'message': str(message)
-            }))
+            self.send_msg('message', str(message))
         else:
             self.cscu_hist.unlock_command(datetime.now())
+
+    def get_websocket_kwargs(self, socket, key):
+        # Custom method for getting kwargs key using one function.
+
+        value = socket.scope['url_route']['kwargs'].get(key, -1)
+        if value == -1:
+            raise KeyError('Key {} does not exist in '
+                           'socket->scope(dict)->url_route(dict)->kwargs(dict) you passed from JS '
+                           'web-socket initialization'.format(key))
+        else:
+            return value
 
 
 class SyncCommandServerConsumer(WebsocketConsumerCustom):
     def connect(self):
         # create connection to server once
-
         async_to_sync(self.channel_layer.group_add)('commands', self.channel_name)
         self.accept()
 
@@ -67,7 +75,7 @@ class SyncCommandServerConsumer(WebsocketConsumerCustom):
         self.close()
 
     def manage_locks(self, message):
-        self.send_msg('lock', message['text'])
+        self.send_msg('lock', json.dumps(message['object']))
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -77,26 +85,34 @@ class SyncCommandServerConsumer(WebsocketConsumerCustom):
         else:
             self.send_servers_for_command(text_data_json['command_pk'])
 
-    def send_msg(self, type, msg):
-        '''
-        type - info or error
-        msg - any string
-        '''
-        self.send(text_data=json.dumps({
-            str(type): str(msg)
-        }))
-
     def execute_command(self, params):
+
+        params = unpack_list(params)
+
         if params.get('command') and params.get('server'):
-            # TODO решить что делать с этим, как вызывать? обрабатывать в exec_cmd?
-            exec_cmd(get_user(self).pk, params['server']['pk'], params['command']['pk'])
-            self.send_msg(
-                'info', 'Команда {} добавлена в очередь для серверов: {}<br> Информация на странице <a>.'.format(
-                    params['command']['value'], params['server']['value']))
+            user_pk = get_user(self).pk
+
+            if True:
+                # TODO решить что делать с этим, как вызывать? обрабатывать в exec_cmd?
+                exec_cmd(
+                    user_pk,
+                    params['server']['pk'],
+                    params['command']['pk'],
+                    params.get('additionalInfo')
+                )
+
+                print(params)
+
+                self.send_msg(
+                    'info', 'Команда {} добавлена в очередь для серверов: {}'
+                            '<br> Информация на странице <a href="/commands/history">История выполнений</a>.'.format(
+                        params['command']['value'],
+                        ', '.join(params['server']['value']) if isinstance(params['server']['value'], list)
+                                                              else params['server']['value']
+                    )
+                )
         else:
             self.send_msg('error', 'Для выполнения команды нужно выбрать команду и один или несколько серверов.')
-
-        print(params)
 
     def send_servers_for_command(self, command_pk):
         # get available servers for this command related to permissions
@@ -117,11 +133,23 @@ class SyncCommandServerConsumer(WebsocketConsumerCustom):
                                                  key=lambda x: x['contour_order'])
                                           , lambda x: x['contour_name'])]
 
-        self.send(text_data=json.dumps({
-            'servers': json.dumps(grouped_sorted_servers)
-        }))
+        self.send_msg('servers', json.dumps(grouped_sorted_servers))
 
 
+class SyncCSCUConsumer(WebsocketConsumerCustom):
+    def connect(self):
+        # create connection to server once
+        async_to_sync(self.channel_layer.group_add)('cscus', self.channel_name)
+        self.accept()
+
+    def disconnect(self, close_code):
+        self.close()
+
+    def manage_cscu(self, message):
+        self.send_msg('message', message)
+
+
+''' not used
 class AsyncCommandsConsumer(AsyncWebsocketConsumerCustom):
     async def connect(self):
         # create connection to server once
@@ -151,3 +179,4 @@ class AsyncCommandsConsumer(AsyncWebsocketConsumerCustom):
             }))
         else:
             django_rq.enqueue(self.cscu_hist.unlock_command, datetime.now())
+'''

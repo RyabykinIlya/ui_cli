@@ -1,4 +1,4 @@
-<div class="card font-small">
+<div class="card" id="card{{ cscu.pk }}">
     {% if cscu.is_success == None %}
         <div class="card-header alert-primary">
     {% elif cscu.is_success %}
@@ -20,8 +20,11 @@
         </div>
         <div class="col col-sm-2">{{ cscu.servercommand }}</div>
         <div class="col col-sm-2">{{ cscu.user }} </div>
-        <div class="col col-sm-3">{{ cscu.start_time|date:'d.m.Y H:i:s' }}
-            - {{ cscu.end_time|date:'d.m.Y H:i:s' }}</div>
+        <div class="col col-sm-3">
+            {{ cscu.start_time|date:'d.m.Y H:i:s' }}
+            {% if cscu.end_time %}
+                - {{ cscu.end_time|date:'d.m.Y H:i:s' }}
+            {% endif %}</div>
         <div class="col col-sm-1">
             {% if cscu.is_success == None %}
                 Выполняется
@@ -35,7 +38,7 @@
     </div>
     </div>
     <div id="collapse{{ cscu.pk }}" class="collapse" aria-labelledby="heading{{ cscu.pk }}"
-         data-parent="#accordionExample">
+         data-parent="#accordionObjects">
         <div class="card-body">
             {{ cscu.cmd_output|linebreaks }}
         </div>

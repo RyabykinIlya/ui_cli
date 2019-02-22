@@ -3,7 +3,13 @@ from django.contrib import admin
 from . import models
 from .classes_override import CustomModelAdmin
 
-admin.site.register(models.CSCU)
+
+@admin.register(models.CSCU)
+class CSCUAdmin(admin.ModelAdmin):
+    model = models.CSCU
+    # inlines = (ContourInline,)
+    list_display = ('contour', 'server', 'servercommand', 'locked_status', 'is_success')
+
 
 ################################## inlines ##################################
 class ServerInline(admin.TabularInline):
@@ -66,7 +72,13 @@ class ServerCommandAdmin(CustomModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'command', 'description', 'average_execution_time', 'lock_enable')
+            'fields': (
+                'name',
+                'command',
+                'description',
+                'average_execution_time',
+                'lock_enable',
+                'with_parameters')
         }),
         ('Связи с серверами', {
             # 'classes': ('collapse',),

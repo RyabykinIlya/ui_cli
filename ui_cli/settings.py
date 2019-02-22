@@ -22,7 +22,8 @@ if DEBUG:
     from main.ssh_modules import get_any_available
     ports_to_connect = {
         'db': get_any_available('127.0.0.1', [55432, 5432]),
-        'rq': get_any_available('127.0.0.1', [56379, 6379])
+        'rq': get_any_available('127.0.0.1', [56379, 6379]),
+        'rq_channels': get_any_available('127.0.0.1', [56380, 6380])
     }
 else:
     ports_to_connect = {
@@ -53,7 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "django_rq",
+    #"django_rq",
 ]
 
 MIDDLEWARE = [
@@ -93,7 +94,7 @@ ASGI_APPLICATION = 'main.routing.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-    'sqlite': {
+    'sqlite3': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
@@ -124,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+'''
 RQ_QUEUES = {
     'default': {
         'HOST': 'localhost',
@@ -134,7 +135,7 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 360,
     }
 }
-
+'''
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -144,10 +145,10 @@ CHANNEL_LAYERS = {
     },
 }
 
-RQ_SHOW_ADMIN_LINK = True
+# RQ_SHOW_ADMIN_LINK = True
 
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'redis://localhost:' + str(ports_to_connect['rq']) + '/0'
+CELERY_BROKER_URL = 'redis://127.0.0.1:' + str(ports_to_connect['rq']) + '/1'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/

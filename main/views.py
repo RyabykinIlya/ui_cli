@@ -7,7 +7,7 @@ from itertools import groupby
 
 from .models import Server, ServerCommand, Contour, CSCU
 from .ssh_modules import check_socket_openned
-from .helpers import get_user
+from .helpers import get_user, get_command_additional_parameters
 
 
 def main_view(request):
@@ -60,7 +60,7 @@ class CSCUListView(ListView):
     template_name = 'main/cscu_list.html'
     paginate_by = 50
 
-    #def get_queryset(self):
+    # def get_queryset(self):
     #    return super().get_queryset().order_by('-start_time')
 
     def get_context_data(self, **kwargs):
@@ -77,9 +77,25 @@ class ServerCommandListView(ListView):
     paginate_by = 100
 
     def get_queryset(self):
-        server_commands = ServerCommand.cobjects.all().get_restricted(user=get_user(self))
+        server_commands = ServerCommand.cobjects.all().get_restricted(user=get_user(self)).order_by('name')
         return server_commands
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # get locked status for each command
+        locked_commands = CSCU.objects.filter(locked_status=True)
+        for command in context['object_list']:
+            if command.with_parameters:
+                command.ad_params = get_command_additional_parameters(command_text=command.command)
+
+            if command.lock_enable:
+                if any(cmd.servercommand.id == command.id for cmd in locked_commands):
+                    command.locked_on = ', '.join(
+                        set(
+                            [x.server.name for x in locked_commands if x.servercommand.id == command.id]
+                        )
+                    )
+            if not hasattr(command, 'locked_on'):
+                command.locked_on = ''
         return context

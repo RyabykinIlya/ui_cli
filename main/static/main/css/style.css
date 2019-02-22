@@ -1,7 +1,7 @@
 body {
     padding: 0;
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     font-weight: 400;
     color: #4b4b4b;
     background-color: #fff;
@@ -24,7 +24,7 @@ body {
     top: 0;
     bottom: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 0;
     padding: 20px 0;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
@@ -160,6 +160,11 @@ h6, .h6 {
 /* Active state gets a caret at the bottom */
 .nav-link.active {
     color: #fff;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    color: #fff;
+    background-color: #CC2936;
 }
 
 /*
@@ -433,7 +438,6 @@ ol {
 .delayed-start {
     /* width: 35px; */
     padding: .175rem .35rem;
-    font-size: 1rem;
     color: #495057;
     background-color: #fff;
     background-clip: padding-box;
@@ -487,14 +491,145 @@ button.cancel-choose::-moz-focus-inner {
     margin-right: auto;
 }
 
-.font-small {
-    font-size: 11pt;
-}
-
 a.disabled {
-    /* Make the disabled links grayish*/
+    /* Make the disabled links grayish */
     color: gray;
     /* And disable the pointer events */
     pointer-events: none;
-    background-color: #fff3cd !important;
+    /* background-color: #fff3cd !important; */
 }
+
+.list-group-item.param {
+    position: relative;
+    display: block;
+    padding: .55rem 1.05rem;
+    margin-bottom: -1px;
+    border: 1px solid rgba(0, 0, 0, .125);
+}
+
+.list-group-item.param:last-child {
+    margin-bottom: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: .25rem;
+}
+
+.list-group-item.param:first-child {
+    border-top-left-radius: .25rem;
+    border-top-right-radius: 0;
+}
+
+.params-block {
+    width: 100%;
+    color: #495057;
+    text-align: inherit;
+    position: relative;
+    /*display: block;*/
+    /*padding: 1.05rem 1.75rem;*/
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-top-right-radius: .25rem;
+    /*padding: 0 0 0 .125rem;*/
+    display: flex;
+    align-items: center;
+    /*writing-mode: vertical-rl;
+    text-orientation: mixed;*/
+}
+
+@media (min-width: 769px) {
+    .params-pad {
+        padding: 0 0 0 1.75rem;
+    }
+
+    .params-block.small-pad {
+        padding: 0 0 0 .525rem;
+    }
+}
+
+@media (max-width: 769px) {
+    .params-pad {
+        padding: 0 0 0 1.25em;
+    }
+
+    .params-block.small-pad {
+        position: relative;
+        padding: 0.2rem 0 0 .125rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .params-block.small-pad .params-svg {
+        width: 20px;
+        margin: 0 auto;
+        display: block;
+    }
+}
+
+.col-cmd {
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .col-cmd-12 {
+        -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .col-cmd-11 {
+        -ms-flex: 0 0 91.666667%;
+        flex: 0 0 91.666667%;
+        max-width: 91.666667%;
+    }
+
+    .col-cmd-1 {
+        -ms-flex: 0 0 8.333333%;
+        flex: 0 0 8.333333%;
+        max-width: 8.333333%;
+    }
+}
+
+@media (min-width: 769px) {
+    .col-cmd-12 {
+        -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .col-cmd-11 {
+        -ms-flex: 0 0 91.666667%;
+        flex: 0 0 91.666667%;
+        max-width: 91.666667%;
+    }
+
+    .col-cmd-1 {
+        -ms-flex: 0 0 8.333333%;
+        flex: 0 0 8.333333%;
+        max-width: 8.333333%;
+    }
+}
+
+.bg-solight-blue {
+    background-color: #abdde5;
+}
+
+.font-medium {
+    font-size: 90%;
+}
+
+.fixme {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    height: 100%;
+}
+
+.bg-yellow {
+    background-color: yellow;
+}
+

@@ -21,16 +21,16 @@
         {% for command in commands %}
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ command.name }}</h5>
+                    <h6 class="card-title">{{ command.name }}</h6>
                     <p class="card-text">{{ command.description }}</p>
                 </div>
                 <div class="card-execute">
                     {% if command.command == "custom_command" %}
-                        <button type="button" class="btn btn-success btn-md btn-block disabled"
+                        <button type="button" class="btn btn-success btn-sm btn-block disabled"
                                 id="show-manual-input">Выполнить
                         </button>
                     {% else %}
-                        <button class="btn btn-primary btn-md btn-block disabled" data-command="execute"
+                        <button class="btn btn-primary btn-sm btn-block disabled" data-command="execute"
                                 id="{{ command.id }}">Выполнить
                         </button>
                     {% endif %}
