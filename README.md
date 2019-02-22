@@ -3,9 +3,9 @@
 Django version 2.0.2 'final'
 
 
-Проект для работы с *nix-like системами, выполнение комманд через UI-интерфейс.
+System to work with *nix-like systems, execute commands through UI-interface.
 
-Реализована модель Контур-Сервер-Команда.
+Data model: {Permission:(User(s), Contour(s), Server(s), Command(s))}
 
 Initialize Demo:
 - set up any database in settings.py
@@ -53,8 +53,6 @@ Modal window with dynamic params:
 13. При нажатии выполнить в окне выбираешь время выполнения/через сколько запустить(ползунком).
 Для каждого пользователя есть экран с очередью задач, либо общая очередь, но отменять/переносить могут только те, кто создавал.
 14. Доработать поле show_on_page для модели MenuItems
-
-DONE 
 15. Locked на экране выполнения комманд сделать через общий веб-сокет с каналами, чтобы в реальном времени отображался статус
 
 #### IMPORTANT
