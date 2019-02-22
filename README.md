@@ -15,6 +15,10 @@ Initialize Demo:
 - python manage.py loaddata User MenuItems Contour Server ServerCommand
 - login as admin/qwerty$4
 
+![Alt text](ui_cli/examples/command_execute.png?raw=true "Title")
+![Alt text](ui_cli/examples/history.png?raw=true "Title")
+![Alt text](ui_cli/examples/locked_command.png?raw=true "Title")
+![Alt text](ui_cli/examples/params_modal.png?raw=true "Title")
 
 #### **TODO:**
 
