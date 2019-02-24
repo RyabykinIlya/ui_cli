@@ -20,6 +20,7 @@ if DEBUG:
     # created as windows solution only, which can not use celery 4* and etc.
 
     from main.ssh_modules import get_any_available
+
     ports_to_connect = {
         'db': get_any_available('127.0.0.1', [55432, 5432]),
         'rq': get_any_available('127.0.0.1', [56379, 6379]),
@@ -40,7 +41,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'rnc!h#q5^aov3wk5j1j_-h86yu4xw54rbo4eoe=m$r)lxux=k)'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -54,7 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #"django_rq",
+    # "django_rq",
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,32 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE.append(
+        'debug_toolbar.middleware.DebugToolbarMiddleware')
+    INSTALLED_APPS.append('debug_toolbar')
+    DEBUG_TOOLBAR_PANELS = [
+        # adds a request history to the debug toolbar
+        'ddt_request_history.panels.request_history.RequestHistoryPanel',
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+        'debug_toolbar.panels.profiling.ProfilingPanel',
+    ]
+    DEBUG_TOOLBAR_CONFIG = {
+        'RESULTS_CACHE_SIZE': 100}
+
+INTERNAL_IPS = ('127.0.0.1',)
 
 ROOT_URLCONF = 'ui_cli.urls'
 
@@ -108,6 +135,27 @@ DATABASES = {
     }
 }
 
+# CACHE_URL = 'redis://127.0.0.1:' + str(ports_to_connect['rq']) + '/2'
+# CACHES = {'default': django_cache_url.config()}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:" + str(ports_to_connect['rq']) + "/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Cache time to live is 15 minutes.
+# CACHE_TTL = 60 * 15
+
+# Do not use cached session if locmem cache backend is used but fallback to use
+# default django.contrib.sessions.backends.db instead
+if not CACHES['default']['BACKEND'].endswith('LocMemCache'):
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
@@ -147,8 +195,13 @@ CHANNEL_LAYERS = {
 
 # RQ_SHOW_ADMIN_LINK = True
 
+# CELERY SETTINGS
+CELERY_BROKER_URL = 'redis://127.0.0.1:' + str(ports_to_connect['rq']) + '/2'
+CELERY_TASK_ALWAYS_EAGER = not CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'redis://127.0.0.1:' + str(ports_to_connect['rq']) + '/1'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/

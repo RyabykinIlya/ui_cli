@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.urls import path, include
 
+
 from . import views
 from .consumers import \
     SyncCommandsConsumer, SyncCommandServerConsumer, SyncCSCUConsumer # AsyncCommandsConsumer

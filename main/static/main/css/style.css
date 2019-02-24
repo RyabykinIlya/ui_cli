@@ -1,6 +1,6 @@
 body {
     padding: 0;
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 0.7rem;
     font-weight: 400;
     color: #4b4b4b;
@@ -162,7 +162,7 @@ h6, .h6 {
     color: #fff;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
     color: #fff;
     background-color: #CC2936;
 }
@@ -456,9 +456,14 @@ ol {
 
 .list-group-item.active {
     z-index: 2;
-    color: #fff;
-    background-color: #abdde5;
+    color: #fff !important;
+    /*background-color: #abdde5;*/
+    background-color: #323031;
     border-color: #c3e6cb;
+}
+
+.list-group-item.active h6 {
+    color: white;
 }
 
 .block-choosen {
@@ -536,22 +541,22 @@ a.disabled {
 
 @media (min-width: 769px) {
     .params-pad {
-        padding: 0 0 0 1.75rem;
+        padding: 0 0 0 2.8%;
     }
 
     .params-block.small-pad {
-        padding: 0 0 0 .525rem;
+        padding: 0 0 0 2.3%;
     }
 }
 
 @media (max-width: 769px) {
     .params-pad {
-        padding: 0 0 0 1.25em;
+        padding: 0 0 0 2.2%;
     }
 
     .params-block.small-pad {
         position: relative;
-        padding: 0.2rem 0 0 .125rem;
+        padding: .4% 0 0 1.75%;
         display: flex;
         align-items: center;
     }
@@ -633,3 +638,28 @@ a.disabled {
     background-color: yellow;
 }
 
+.red-bold {
+    color: #e34141;
+    font-weight: 500;
+    /*border-color: #f5c6cb;*/
+}
+
+.blue-bold {
+    color: #3690f1;
+    font-weight: 500;
+    /*border-color: #f5c6cb;*/
+}
+
+.green-bold {
+    color: #22b242;
+    font-weight: 500;
+    /*border-color: #f5c6cb;*/
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-charleston {
+    color: #3c3c3c;
+}

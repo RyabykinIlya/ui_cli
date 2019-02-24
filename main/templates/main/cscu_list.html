@@ -6,13 +6,11 @@
     Список комманд
 {% endblock %}
 {% block content %}
-    {% load verbose_names %}
     {% if cscu_in_progress or object_list %}
         <div class="row">
-            <div class="col col-sm-3">{% get_verbose_field_name object_list.0.contour "name" %}
-                / {% get_verbose_field_name object_list.0.server "name" %}</div>
-            <div class="col col-sm-2">{% get_verbose_field_name object_list.0.servercommand "name" %}</div>
-            <div class="col col-sm-2">{% get_verbose_field_name object_list.0 "user" %}</div>
+            <div class="col col-sm-3">Название контура / Название машины</div>
+            <div class="col col-sm-2">Название команды</div>
+            <div class="col col-sm-2">Пользователь</div>
             <div class="col col-sm-3">Время начала - время завершения</div>
             <div class="col col-sm-1">Статус</div>
         </div>
@@ -45,6 +43,7 @@
 
             <div id="object_list">
                 {% if object_list %}
+                    <!-- TODO so many queries here > ~200 -->
                     {% for cscu in object_list %}
                         {% include "main/collapse_list.html" %}
                     {% endfor %}

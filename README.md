@@ -3,11 +3,9 @@
 Django version 2.0.2 'final'
 
 
-Service to work with *nix-like systems, execute commands through UI-interface.
+Проект для работы с *nix-like системами, выполнение комманд через UI-интерфейс.
 
-Still in dev state.
-
-Data model: {Permission:(User(s), Contour(s), Server(s), Command(s))}
+Реализована модель Контур-Сервер-Команда.
 
 Initialize Demo:
 - set up any database in settings.py
@@ -17,16 +15,6 @@ Initialize Demo:
 - python manage.py loaddata User MenuItems Contour Server ServerCommand
 - login as admin/qwerty$4
 
-#EXAMPLES
-
-Command execute window:
-![Command execute window](/examples/command_execute.png?raw=true "Command execute window")
-Command executions history:
-![Command executions histsory](/examples/history.png?raw=true "Command executions histsory")
-Locked command:
-![Locked command](/examples/locked_command.png?raw=true "Locked command")
-Modal window with dynamic params:
-![Modal window with dynamic params](/examples/params_modal.png?raw=true "Modal window with dynamic params")
 
 #### **TODO:**
 
@@ -55,6 +43,8 @@ Modal window with dynamic params:
 13. При нажатии выполнить в окне выбираешь время выполнения/через сколько запустить(ползунком).
 Для каждого пользователя есть экран с очередью задач, либо общая очередь, но отменять/переносить могут только те, кто создавал.
 14. Доработать поле show_on_page для модели MenuItems
+
+DONE 
 15. Locked на экране выполнения комманд сделать через общий веб-сокет с каналами, чтобы в реальном времени отображался статус
 
 #### IMPORTANT

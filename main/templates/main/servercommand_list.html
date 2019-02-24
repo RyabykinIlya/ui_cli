@@ -99,7 +99,7 @@
                     <span class="d-none">{{ command.command }}</span>
                 {% endfor %}
                 </div>
-                <div class="col-sm-6 d-none pt-2 fixme" id="servers-block">
+                <div class="col-sm-4 d-none pt-2 fixme" id="servers-block">
                     Выберите сервера для выполнения<br>
                     <div id="server-list"></div>
                 </div>
@@ -367,7 +367,7 @@
                 }
             }
 
-            $('#command-list').animate({maxWidth: "50%"}, animate_delay);
+            $('#command-list').animate({maxWidth: "60%"}, animate_delay);
             setTimeout(function () {
                 $('#servers-block').removeClass('d-none');
             }, animate_delay);

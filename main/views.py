@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import DetailView, ListView
 from django.utils.safestring import mark_safe
+# from django.contrib.auth.models import User
 
 import json
 from itertools import groupby
@@ -38,7 +39,7 @@ class ServerListView(ListView):
                         server.status = 'offline'
 
     def get_queryset(self):
-        servers_dict = Server.cobjects.all().get_restricted(user=get_user(self)).order_by('contour')
+        servers_dict = Server.cobjects.all().prefetch_related('contour').get_restricted(user=get_user(self)).order_by('contour')
 
         # creates list of dicts with structure
         # [{contour.name: <Server object>, <Server object>}, {..}, {..}]
@@ -54,7 +55,6 @@ class ServerListView(ListView):
         self.check_server_status(context)
         return context
 
-
 class CSCUListView(ListView):
     model = CSCU
     template_name = 'main/cscu_list.html'
@@ -64,10 +64,12 @@ class CSCUListView(ListView):
     #    return super().get_queryset().order_by('-start_time')
 
     def get_context_data(self, **kwargs):
-        object_list = CSCU.objects.all()
+        object_list = CSCU.objects.all().prefetch_related('user', 'contour', 'server', 'servercommand').order_by('-start_time')
         context = super().get_context_data(
-            object_list=object_list.filter(locked_status=False).order_by('-start_time'), **kwargs)
-        context['cscu_in_progress'] = object_list.filter(locked_status=True).order_by('-start_time')
+            object_list=object_list.filter(locked_status=False)
+                , **kwargs)
+        context['cscu_in_progress'] = object_list.filter(locked_status=True)
+
         return context
 
 
@@ -84,6 +86,7 @@ class ServerCommandListView(ListView):
         context = super().get_context_data(**kwargs)
 
         # get locked status for each command
+
         locked_commands = CSCU.objects.filter(locked_status=True)
         for command in context['object_list']:
             if command.with_parameters:
@@ -98,4 +101,5 @@ class ServerCommandListView(ListView):
                     )
             if not hasattr(command, 'locked_on'):
                 command.locked_on = ''
+
         return context
