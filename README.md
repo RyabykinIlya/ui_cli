@@ -3,9 +3,11 @@
 Django version 2.0.2 'final'
 
 
-Проект для работы с *nix-like системами, выполнение комманд через UI-интерфейс.
+Service to work with *nix-like systems, execute commands through UI-interface.
 
-Реализована модель Контур-Сервер-Команда.
+Still in dev state.
+
+Data model: {Permission:(User(s), Contour(s), Server(s), Command(s))}
 
 Initialize Demo:
 - set up any database in settings.py
@@ -15,6 +17,16 @@ Initialize Demo:
 - python manage.py loaddata User MenuItems Contour Server ServerCommand
 - login as admin/qwerty$4
 
+#EXAMPLES
+
+Command execute window:
+![Command execute window](/examples/command_execute.png?raw=true "Command execute window")
+Command executions history:
+![Command executions histsory](/examples/history.png?raw=true "Command executions histsory")
+Locked command:
+![Locked command](/examples/locked_command.png?raw=true "Locked command")
+Modal window with dynamic params:
+![Modal window with dynamic params](/examples/params_modal.png?raw=true "Modal window with dynamic params")
 
 #### **TODO:**
 
