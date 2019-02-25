@@ -9,13 +9,14 @@ Still in dev state.
 
 Data model: {Permission:(User(s), Contour(s), Server(s), Command(s))}
 
-Initialize Demo:
+<!--Initialize Demo:
 - set up any database in settings.py
 - set up redis queue and add credentials into RQ_QUEUES block in settings.py
 - python manage.py makemigrations
 - python manage.py migrate
 - python manage.py loaddata User MenuItems Contour Server ServerCommand
 - login as admin/qwerty$4
+-->
 
 #EXAMPLES
 
