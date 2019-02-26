@@ -1,9 +1,8 @@
-django==2.0.2
-channels-redis==2.3.3
-django-cache-url==3.0.0
-django-redis==4.1.0
-sqlparse==0.2.4
+django==2.1.7
+celery==4.2.1
+paramiko==2.4.2
+channels==2.1.6
+django_celery_results==1.0.4
 django-debug-toolbar==1.11
+psycopg2==2.7.6.1
 django-debug-toolbar-request-history==0.0.9
-gunicorn
-django-heroku

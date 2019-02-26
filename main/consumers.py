@@ -5,7 +5,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from paramiko.ssh_exception import SSHException
 # from channels.generic.websocket import WebsocketConsumer
 from itertools import groupby
-import django_rq
+# import django_rq
 
 from . import models
 from .classes_override import WebsocketConsumerCustom  # , AsyncWebsocketConsumerCustom
