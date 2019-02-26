@@ -1,12 +1,77 @@
 [
   {
     "model": "main.server",
-    "pk": 1,
+    "pk": 2,
     "fields": {
       "last_upd_by": null,
-      "name": "localhost",
+      "name": "app",
       "ip_address": "127.0.0.1",
-      "ssh_port": 522,
+      "ssh_port": 22,
+      "user": "root",
+      "password": "root",
+      "contour": 2
+    }
+  },
+  {
+    "model": "main.server",
+    "pk": 3,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "app-dev",
+      "ip_address": "127.0.0.1",
+      "ssh_port": 32,
+      "user": "root",
+      "password": "root",
+      "contour": 1
+    }
+  },
+  {
+    "model": "main.server",
+    "pk": 5,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "gateway",
+      "ip_address": "127.0.0.1",
+      "ssh_port": 23,
+      "user": "root",
+      "password": "root",
+      "contour": 2
+    }
+  },
+  {
+    "model": "main.server",
+    "pk": 7,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "web-dev",
+      "ip_address": "127.0.0.1",
+      "ssh_port": 25,
+      "user": "root",
+      "password": "root",
+      "contour": 1
+    }
+  },
+  {
+    "model": "main.server",
+    "pk": 8,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "gw-dev",
+      "ip_address": "127.0.0.1",
+      "ssh_port": 26,
+      "user": "root",
+      "password": "root",
+      "contour": 1
+    }
+  },
+  {
+    "model": "main.server",
+    "pk": 9,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "bip-dev",
+      "ip_address": "127.0.0.1",
+      "ssh_port": 27,
       "user": "root",
       "password": "root",
       "contour": 1

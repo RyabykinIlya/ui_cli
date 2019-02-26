@@ -1,0 +1,32 @@
+[
+  {
+    "model": "main.permission",
+    "pk": 2,
+    "fields": {
+      "last_upd_by": 1,
+      "name": "test",
+      "contour": [
+        1,
+        2
+      ],
+      "server": [
+        2,
+        3,
+        5,
+        7,
+        8,
+        9
+      ],
+      "servercommand": [
+        5,
+        7,
+        8,
+        10,
+        14
+      ],
+      "user": [
+        2
+      ]
+    }
+  }
+]
