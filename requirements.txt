@@ -1,0 +1,9 @@
+Django==2.0.2
+channels-redis==2.3.3
+django-redis==2.0.0
+django-cache-url==3.0.0
+sqlparse==0.2.4
+django-debug-toolbar==1.11
+django-debug-toolbar-request-history==0.0.9
+gunicorn
+django-heroku
