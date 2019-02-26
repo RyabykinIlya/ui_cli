@@ -4,6 +4,9 @@
   "image": "heroku/python",
   "repository": "https://github.com/RyabykinIlya/ui_cli",
   "keywords": ["python", "django" ],
+  "scripts": {
+    "postdeploy": "python manage.py migrate && python manage.py loaddata User MenuItems Contour Server ServerCommand Permission"
+  },
   "addons": [ "heroku-postgresql" ],
   "env": {
     "SECRET_KEY": {
@@ -20,3 +23,4 @@
     }
   }
 }
+
