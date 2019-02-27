@@ -11,28 +11,10 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-
-import django_heroku
 import dj_database_url
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-if DEBUG:
-    # for development purposes
-    # created as windows solution only, which can not use celery 4* and etc.
-
-    from main.ssh_modules import get_any_available
-
-    ports_to_connect = {
-        'db': get_any_available('127.0.0.1', [55432, 5432]),
-        'rq': get_any_available('127.0.0.1', [56379, 6379]),
-        'rq_channels': get_any_available('127.0.0.1', [56380, 6380])
-    }
-else:
-    ports_to_connect = {
-        'db': 5432,
-        'rq': 6379
-    }
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -57,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # "django_rq",
 ]
 
 MIDDLEWARE = [
@@ -132,21 +113,18 @@ DATABASES = {
         conn_max_age=600)
 }
 
-# CACHE_URL = 'redis://127.0.0.1:' + str(ports_to_connect['rq']) + '/2'
+# CACHE_URL = 'redis://127.0.0.1:6379/2'
 # CACHES = {'default': django_cache_url.config()}
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:" + str(ports_to_connect['rq']) + "/2",
+        "LOCATION": "redis://127.0.0.1:6379/3",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
 }
-
-# Cache time to live is 15 minutes.
-# CACHE_TTL = 60 * 15
 
 # Do not use cached session if locmem cache backend is used but fallback to use
 # default django.contrib.sessions.backends.db instead
@@ -170,30 +148,18 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-'''
-RQ_QUEUES = {
-    'default': {
-        'HOST': 'localhost',
-        'PORT': ports_to_connect['rq'],
-        'DB': 0,
-        #'PASSWORD': 'some-password',
-        'DEFAULT_TIMEOUT': 360,
-    }
-}
-'''
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', ports_to_connect['rq'])],
+            "hosts": [('127.0.0.1', 6379)],
         },
     },
 }
 
-# RQ_SHOW_ADMIN_LINK = True
-
 # CELERY SETTINGS
-CELERY_BROKER_URL = 'redis://127.0.0.1:' + str(ports_to_connect['rq']) + '/2'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/2'
 CELERY_TASK_ALWAYS_EAGER = not CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -218,6 +184,3 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "main/static")
-
-# Activate Django-Heroku.
-django_heroku.settings(locals())
